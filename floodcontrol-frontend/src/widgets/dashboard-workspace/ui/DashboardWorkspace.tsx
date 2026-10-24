@@ -1,5 +1,15 @@
 import { useState, type CSSProperties } from "react"
 import { alerts } from "../../../entities/alert/model/mock"
+import {
+  forecastPeriods,
+  holtParameters,
+} from "../../../entities/prediction/model/forecast"
+import {
+  getForecastComparisonRows,
+  getSensorForecast,
+} from "../../../entities/prediction/model/selectors"
+import { sensorHistories } from "../../../entities/prediction/model/mock"
+import type { ForecastPeriod } from "../../../entities/prediction/model/types"
 import { sensors } from "../../../entities/sensor/model/mock"
 import { severityStyles } from "../../../entities/sensor/model/severityStyles"
 import { Button } from "../../../shared/ui/Button"
@@ -10,7 +20,8 @@ import { Row } from "../../../shared/ui/Row"
 export function DashboardWorkspace({ tab }: { tab: string }) {
   const [view, setView] = useState("All")
   const [selected, setSelected] = useState(sensors[0])
-  const [period, setPeriod] = useState("24 hours")
+  const [period, setPeriod] = useState<ForecastPeriod>("24 hours")
+  const [predictionSensorId, setPredictionSensorId] = useState(sensors[0].id)
   const [alertState, setAlertState] = useState<Record<number, string>>({})
   const filtered =
     view === "All"
@@ -28,7 +39,7 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
     ],
     "Predictive Analytics": [
       "Predictive analytics",
-      "Short-term flood forecasts using rainfall, terrain, and water-level trends",
+      "Short-term per-sensor forecasts using historical water-level trends",
     ],
     "Alert Management": [
       "Alert management",
@@ -291,7 +302,57 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
       </div>
     )
 
-  if (tab === "Predictive Analytics")
+  if (tab === "Predictive Analytics") {
+    const selectedPredictionSensor =
+      sensors.find((sensor) => sensor.id === predictionSensorId) ?? sensors[0]
+    const predictiveForecast = getSensorForecast(
+      selectedPredictionSensor.id,
+      period,
+    )
+    const comparisonRows = getForecastComparisonRows(period)
+    const chartMax = Math.max(
+      80,
+      ...predictiveForecast.points.map((point) => point.upper),
+    )
+    const chartPoints = predictiveForecast.points
+      .map(
+        (point, index) =>
+          `${(index / Math.max(predictiveForecast.points.length - 1, 1)) * 800},${260 - (point.value / chartMax) * 230}`,
+      )
+      .join(" ")
+    const lowerPoints = predictiveForecast.points
+      .map(
+        (point, index) =>
+          `${(index / Math.max(predictiveForecast.points.length - 1, 1)) * 800},${260 - (point.lower / chartMax) * 230}`,
+      )
+      .join(" ")
+    const upperPoints = predictiveForecast.points
+      .map((point, index) => {
+        const reverseIndex = predictiveForecast.points.length - index - 1
+        return `${(reverseIndex / Math.max(predictiveForecast.points.length - 1, 1)) * 800},${260 - (point.upper / chartMax) * 230}`
+      })
+      .join(" ")
+    const uncertaintyPoints = `${lowerPoints} ${upperPoints}`
+    const forecastAreaPoints = `0,280 ${chartPoints} 800,280`
+    const timelineLabels =
+      period === "6 hours"
+        ? ["Now", "+2h", "+4h", "+6h"]
+        : period === "24 hours"
+          ? ["Now", "+6h", "+12h", "+18h", "+24h"]
+          : period === "3 days"
+            ? ["Now", "+18h", "+36h", "+54h", "+72h"]
+            : ["Now", "+42h", "+84h", "+126h", "+168h"]
+    const riskClass =
+      predictiveForecast.risk === "Critical"
+        ? "bg-rose-500/15 text-rose-300"
+        : predictiveForecast.risk === "Warning"
+          ? "bg-amber-400/15 text-amber-300"
+          : predictiveForecast.risk === "Watch"
+            ? "bg-cyan-400/15 text-cyan-300"
+            : "bg-emerald-400/15 text-emerald-300"
+    const historyCount =
+      sensorHistories[selectedPredictionSensor.id]?.length ?? 0
+
     return (
       <div>
         <PageHeading
@@ -299,20 +360,36 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           subtitle={title[tab][1]}
           action="Download report"
         />
-        <div className="mb-5 flex gap-2">
-          {["6 hours", "24 hours", "3 days", "7 days"].map((item) => (
-            <Button
-              key={item}
-              onClick={() => setPeriod(item)}
-              className={`rounded-lg border px-3 py-2 text-xs ${
-                period === item
-                  ? "border-cyan-400 bg-cyan-400 text-slate-950"
-                  : "border-white/10 text-slate-400"
-              }`}
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div className="flex gap-2">
+            {forecastPeriods.map((item) => (
+              <Button
+                key={item}
+                onClick={() => setPeriod(item)}
+                className={`rounded-lg border px-3 py-2 text-xs ${
+                  period === item
+                    ? "border-cyan-400 bg-cyan-400 text-slate-950"
+                    : "border-white/10 text-slate-400"
+                }`}
+              >
+                {item}
+              </Button>
+            ))}
+          </div>
+          <label className="flex items-center gap-2 text-xs text-slate-500">
+            Forecast sensor
+            <select
+              value={predictionSensorId}
+              onChange={(event) => setPredictionSensorId(event.target.value)}
+              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-xs text-slate-300 outline-none focus:border-cyan-400"
             >
-              {item}
-            </Button>
-          ))}
+              {sensors.map((sensor) => (
+                <option key={sensor.id} value={sensor.id}>
+                  {sensor.id} · {sensor.street}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
@@ -322,70 +399,104 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   Water-level forecast
                 </h2>
                 <p className="mt-1 text-xs text-slate-500">
-                  Citywide weighted average · {period}
+                  {selectedPredictionSensor.id} ·{" "}
+                  {selectedPredictionSensor.street} · {period}
                 </p>
               </div>
-              <span className="rounded-full bg-amber-400/10 px-3 py-1 text-xs text-amber-300">
-                Risk increasing
+              <span className={`rounded-full px-3 py-1 text-xs ${riskClass}`}>
+                {predictiveForecast.risk} risk
               </span>
             </div>
             <div className="relative mt-8 h-72 border-b border-l border-white/10">
-              <div className="absolute inset-x-0 top-1/3 border-t border-dashed border-rose-400/30">
-                <span className="absolute right-0 -top-5 text-[10px] text-rose-300">
-                  Critical threshold
-                </span>
-              </div>
               <svg
                 className="size-full"
                 viewBox="0 0 800 280"
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="prediction-area"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="0" stopColor="#22d3ee" stopOpacity=".35" />
                     <stop offset="1" stopColor="#22d3ee" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <path
-                  d="M0 250 C90 235 120 245 200 220 S320 180 390 190 S500 150 570 120 S690 75 800 35 V280 H0Z"
-                  fill="url(#area)"
+                <polygon
+                  points={uncertaintyPoints}
+                  fill="#22d3ee"
+                  fillOpacity=".08"
                 />
-                <path
-                  d="M0 250 C90 235 120 245 200 220 S320 180 390 190 S500 150 570 120 S690 75 800 35"
+                <polygon
+                  points={forecastAreaPoints}
+                  fill="url(#prediction-area)"
+                />
+                <line
+                  x1="0"
+                  x2="800"
+                  y1={260 - (60 / chartMax) * 230}
+                  y2={260 - (60 / chartMax) * 230}
+                  stroke="#fb7185"
+                  strokeDasharray="6 6"
+                  strokeOpacity=".5"
+                />
+                <polyline
+                  points={chartPoints}
                   fill="none"
                   stroke="#22d3ee"
                   strokeWidth="4"
                 />
+                <text
+                  x="795"
+                  y={Math.max(14, 255 - (60 / chartMax) * 230)}
+                  fill="#fda4af"
+                  fontSize="10"
+                  textAnchor="end"
+                >
+                  Critical threshold
+                </text>
               </svg>
             </div>
             <div className="mt-3 flex justify-between text-[10px] text-slate-600">
-              <span>Now</span>
-              <span>+6h</span>
-              <span>+12h</span>
-              <span>+18h</span>
-              <span>+24h</span>
+              {timelineLabels.map((label) => (
+                <span key={label}>{label}</span>
+              ))}
             </div>
           </article>
           <div className="space-y-4">
             <article className="rounded-2xl border border-white/8 bg-gradient-to-br from-amber-400/10 to-rose-500/5 p-5">
               <p className="text-xs text-slate-400">Peak projected level</p>
-              <p className="mt-2 text-3xl font-semibold text-white">82 cm</p>
+              <p className="mt-2 text-3xl font-semibold text-white">
+                {Math.round(predictiveForecast.peakLevel)} cm
+              </p>
               <p className="mt-1 text-xs text-amber-300">
-                Expected at 22:40 tonight
+                Expected in +{predictiveForecast.peakHour} hours
               </p>
               <div className="mt-5 border-t border-white/8 pt-4">
-                <Row label="Model confidence" value="87%" />
-                <Row label="Potential road impact" value="14 streets" />
-                <Row label="Population exposed" value="2,340" />
+                <Row
+                  label="Model confidence"
+                  value={`${predictiveForecast.confidence}%`}
+                />
+                <Row
+                  label="Potential road impact"
+                  value={`${predictiveForecast.roadImpact} streets`}
+                />
+                <Row
+                  label="Population exposed"
+                  value={predictiveForecast.populationExposed.toLocaleString("en-US")}
+                />
               </div>
             </article>
             <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
               <h2 className="font-semibold text-white">Forecast inputs</h2>
               {[
-                ["Rainfall radar", "Live"],
-                ["16 IoT sensors", "Streaming"],
-                ["Terrain model", "Synced"],
-                ["Drainage capacity", "Updated"],
+                ["Water-level history", `${historyCount} hourly samples`],
+                ["Holt trend model", `Alpha ${holtParameters.alpha}`],
+                ["Trend smoothing", `Beta ${holtParameters.beta}`],
+                ["Critical threshold", "60 cm"],
               ].map(([a, b]) => (
                 <div key={a} className="mt-3 flex justify-between text-xs">
                   <span className="text-slate-400">{a}</span>
@@ -395,39 +506,86 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
             </article>
           </div>
         </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-3">
-          {[
-            ["District 3", "Very high", "Rizal corridor may exceed 75 cm"],
-            ["District 1", "High", "Underpass closure likely"],
-            ["District 4", "Moderate", "Localized pooling expected"],
-          ].map(([z, r, d], i) => (
-            <article
-              key={z}
-              className="rounded-2xl border border-white/8 bg-white/[0.035] p-5"
-            >
-              <div className="flex justify-between">
-                <h2 className="font-semibold text-white">{z}</h2>
-                <span
-                  className={`text-xs ${
-                    i === 0
-                      ? "text-rose-300"
-                      : i === 1
-                        ? "text-amber-300"
-                        : "text-cyan-300"
-                  }`}
-                >
-                  {r}
-                </span>
-              </div>
-              <p className="mt-3 text-sm text-slate-400">{d}</p>
-              <Button className="mt-4 text-xs font-medium text-cyan-300">
-                View scenario →
-              </Button>
-            </article>
-          ))}
-        </div>
+        <article className="mt-5 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 p-5">
+            <div>
+              <h2 className="font-semibold text-white">
+                Sensor forecast comparison
+              </h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Holt trend forecast for every mocked sensor
+              </p>
+            </div>
+            <span className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-300">
+              {comparisonRows.length} sensors modeled
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[820px] text-left text-sm">
+              <thead className="bg-slate-950/50 text-xs text-slate-500">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Sensor</th>
+                  <th className="px-5 py-3 font-medium">Current level</th>
+                  <th className="px-5 py-3 font-medium">Projected peak</th>
+                  <th className="px-5 py-3 font-medium">Peak horizon</th>
+                  <th className="px-5 py-3 font-medium">Confidence</th>
+                  <th className="px-5 py-3 font-medium">Risk</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/6">
+                {comparisonRows.map((row) => {
+                  const sensor =
+                    sensors.find((item) => item.id === row.sensorId) ??
+                    sensors[0]
+                  const isSelected = sensor.id === selectedPredictionSensor.id
+
+                  return (
+                    <tr
+                      key={row.sensorId}
+                      className={`hover:bg-white/[0.025] ${
+                        isSelected ? "bg-cyan-400/[0.04]" : ""
+                      }`}
+                    >
+                      <td className="px-5 py-3">
+                        <Button
+                          onClick={() => setPredictionSensorId(row.sensorId)}
+                          className="text-left font-medium text-cyan-300 hover:text-cyan-200"
+                        >
+                          {row.sensorId}
+                        </Button>
+                        <p className="mt-0.5 text-xs text-slate-600">
+                          {sensor.street}
+                        </p>
+                      </td>
+                      <td className="px-5 py-3 text-slate-300">
+                        {row.currentLevel} cm
+                      </td>
+                      <td className="px-5 py-3 font-medium text-white">
+                        {Math.round(row.peakLevel)} cm
+                      </td>
+                      <td className="px-5 py-3 text-slate-400">
+                        +{row.peakHour}h
+                      </td>
+                      <td className="px-5 py-3 text-slate-300">
+                        {row.confidence}%
+                      </td>
+                      <td className="px-5 py-3">
+                        <span
+                          className={`rounded-full px-2 py-1 text-[10px] font-semibold ${severityStyles[row.risk]}`}
+                        >
+                          {row.risk}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </article>
       </div>
     )
+  }
 
   return (
     <div>
