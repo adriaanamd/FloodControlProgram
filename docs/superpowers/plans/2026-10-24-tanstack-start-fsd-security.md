@@ -25,41 +25,46 @@
 ### Task 1: Establish the failing regression and security contract tests
 
 **Files:**
-- Create: `floodcontrol-frontend/tests/entities/sensor/filterSensors.test.ts`
-- Create: `floodcontrol-frontend/tests/entities/alert/activeAlerts.test.ts`
-- Create: `floodcontrol-frontend/tests/security/runtime-contract.test.ts`
-- Modify: `floodcontrol-frontend/package.json`
+- Create: `floodcontrol-tests/package.json`
+- Create: `floodcontrol-tests/tsconfig.json`
+- Create: `floodcontrol-tests/entities/sensor/filterSensors.test.ts`
+- Create: `floodcontrol-tests/entities/alert/activeAlerts.test.ts`
+- Create: `floodcontrol-tests/security/runtime-contract.test.ts`
 
 **Interfaces:**
 - Consumes: The intended extracted sensor and alert model functions from Tasks 3 and 4.
-- Produces: A Vitest command and tests that define sensor filtering, alert acknowledgement, and Node2Shell/runtime constraints before production extraction.
+- Produces: A separate `floodcontrol-tests/` Vitest package and tests that define sensor filtering, alert acknowledgement, and Node2Shell/runtime constraints before production extraction.
 
 - [ ] **Step 1: Add the test command and Vitest dependency.**
 
-Update `package.json` with:
+Create `floodcontrol-tests/package.json` with:
 
 ```json
 {
+  "name": "floodcontrol-tests",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
     "vitest": "^3.2.4"
   }
 }
 ```
 
-Run `pnpm install` from `floodcontrol-frontend/` to update `pnpm-lock.yaml`.
+Create `floodcontrol-tests/tsconfig.json` with `target: ES2022`, `module: ESNext`, `moduleResolution: Bundler`, `types: ["node"]`, `strict: true`, `skipLibCheck: true`, and `noEmit: true`, including `**/*.test.ts`. Run `corepack pnpm install` from `floodcontrol-tests/` to create its `pnpm-lock.yaml`.
 
 - [ ] **Step 2: Write the failing sensor selector test.**
 
-Create `tests/entities/sensor/filterSensors.test.ts`:
+Create `floodcontrol-tests/entities/sensor/filterSensors.test.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { filterSensors } from '../../../src/entities/sensor/model/selectors'
-import type { Sensor } from '../../../src/entities/sensor/model/types'
+import { filterSensors } from '../../../floodcontrol-frontend/src/entities/sensor/model/selectors'
+import type { Sensor } from '../../../floodcontrol-frontend/src/entities/sensor/model/types'
 
 const sensors: Sensor[] = [
   { id: 'A', street: 'A', zone: '1', level: 1, trend: 'Stable', state: 'Critical', x: 0, y: 0 },
@@ -76,12 +81,12 @@ describe('filterSensors', () => {
 
 - [ ] **Step 3: Write the failing alert acknowledgement test.**
 
-Create `tests/entities/alert/activeAlerts.test.ts`:
+Create `floodcontrol-tests/entities/alert/activeAlerts.test.ts`:
 
 ```ts
 import { describe, expect, it } from 'vitest'
-import { getActiveAlerts } from '../../../src/entities/alert/model/selectors'
-import type { Alert } from '../../../src/entities/alert/model/types'
+import { getActiveAlerts } from '../../../floodcontrol-frontend/src/entities/alert/model/selectors'
+import type { Alert } from '../../../floodcontrol-frontend/src/entities/alert/model/types'
 
 const alerts: Alert[] = [
   { title: 'Critical', place: 'A', time: 'Now', severity: 'Critical' },
@@ -98,14 +103,14 @@ describe('getActiveAlerts', () => {
 
 - [ ] **Step 4: Write the failing runtime contract test.**
 
-Create `tests/security/runtime-contract.test.ts`:
+Create `floodcontrol-tests/security/runtime-contract.test.ts`:
 
 ```ts
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const projectRoot = resolve(import.meta.dirname, '..', '..')
+const projectRoot = resolve(import.meta.dirname, '..', '..', 'floodcontrol-frontend')
 const packageJson = JSON.parse(readFileSync(resolve(projectRoot, 'package.json'), 'utf8')) as {
   engines?: { node?: string }
 }
@@ -136,11 +141,10 @@ describe('runtime security contract', () => {
 
 - [ ] **Step 5: Run the new tests and verify they fail for missing production modules.**
 
-Run:
+Run from the repository root:
 
 ```powershell
-cd floodcontrol-frontend
-pnpm test
+corepack pnpm --dir floodcontrol-tests test
 ```
 
 Expected: FAIL because the extracted selector/type modules and patched runtime contract do not exist yet. Fix only test setup errors; do not add production implementations in this step.
@@ -148,7 +152,7 @@ Expected: FAIL because the extracted selector/type modules and patched runtime c
 - [ ] **Step 6: Commit the red tests.**
 
 ```powershell
-git add floodcontrol-frontend/package.json floodcontrol-frontend/pnpm-lock.yaml floodcontrol-frontend/tests
+git add floodcontrol-tests
 git commit -m "test: define dashboard extraction and runtime security contracts"
 ```
 
@@ -285,8 +289,8 @@ git commit -m "build: migrate frontend runtime to TanStack Start"
 - Create: `floodcontrol-frontend/src/shared/ui/TextField.tsx`
 - Create: `floodcontrol-frontend/src/shared/ui/PageHeading.tsx`
 - Create: `floodcontrol-frontend/src/shared/ui/Row.tsx`
-- Modify: `floodcontrol-frontend/tests/entities/sensor/filterSensors.test.ts`
-- Modify: `floodcontrol-frontend/tests/entities/alert/activeAlerts.test.ts`
+- Modify: `floodcontrol-tests/entities/sensor/filterSensors.test.ts`
+- Modify: `floodcontrol-tests/entities/alert/activeAlerts.test.ts`
 
 **Interfaces:**
 - Consumes: The failing tests from Task 1 and the literal data/icon/primitive definitions currently in `src/App.tsx`.
@@ -325,8 +329,7 @@ export function getActiveAlerts(alerts: readonly Alert[], acknowledged: boolean)
 Run:
 
 ```powershell
-cd floodcontrol-frontend
-pnpm vitest run tests/entities/sensor/filterSensors.test.ts tests/entities/alert/activeAlerts.test.ts
+corepack pnpm --dir floodcontrol-tests vitest run entities/sensor/filterSensors.test.ts entities/alert/activeAlerts.test.ts
 ```
 
 Expected: both tests PASS.
@@ -342,7 +345,7 @@ Run `pnpm typecheck`. Fix only type/import issues created by the extraction; do 
 - [ ] **Step 7: Commit the entity and shared layer.**
 
 ```powershell
-git add floodcontrol-frontend/src/entities floodcontrol-frontend/src/shared floodcontrol-frontend/tests/entities
+git add floodcontrol-frontend/src/entities floodcontrol-frontend/src/shared floodcontrol-tests
 git commit -m "refactor: extract dashboard entities and shared UI"
 ```
 
@@ -406,7 +409,8 @@ Run:
 ```powershell
 cd floodcontrol-frontend
 pnpm typecheck
-pnpm vitest run tests/entities/sensor/filterSensors.test.ts tests/entities/alert/activeAlerts.test.ts
+cd ..
+corepack pnpm --dir floodcontrol-tests vitest run entities/sensor/filterSensors.test.ts entities/alert/activeAlerts.test.ts
 ```
 
 Expected: both commands exit 0.
@@ -477,7 +481,8 @@ Run:
 ```powershell
 cd floodcontrol-frontend
 pnpm typecheck
-pnpm test
+cd ..
+corepack pnpm --dir floodcontrol-tests test
 ```
 
 Expected: the model and security tests PASS; any remaining build failure should be only the missing TanStack route document from Task 6.
@@ -568,7 +573,7 @@ Run:
 cd floodcontrol-frontend
 pnpm format --check
 pnpm typecheck
-pnpm test
+  corepack pnpm --dir floodcontrol-tests test
 pnpm build
 ```
 
@@ -652,7 +657,8 @@ Expected: exit code 0 for both.
 - [ ] **Step 2: Run the complete test suite.**
 
 ```powershell
-pnpm test
+corepack pnpm --dir floodcontrol-tests typecheck
+corepack pnpm --dir floodcontrol-tests test
 ```
 
 Expected: all Vitest tests pass with zero skipped or focused tests.
@@ -693,5 +699,5 @@ Report the exact command outcomes, commit IDs, and whether any GitHub Actions ru
 - Spec coverage: Tasks 2, 6, and 7 cover TanStack Start, no `index.html`, and Figma removal; Tasks 3–5 cover the full FSD split and UI-preserving composition; Tasks 1, 2, and 8 cover Node2Shell/runtime security and verification.
 - Placeholder scan: no `TBD`, `TODO`, `FIXME`, or “implement later” instructions are used.
 - Type consistency: `SensorFilter`, `Sensor`, `Alert`, `MockUser`, `filterSensors`, and `getActiveAlerts` are defined before their consumers and keep the exact names used by later tasks.
-- Test integrity: tests are written before extracted implementations, no focused or skipped tests are permitted, and full local verification is required before completion.
+- Test integrity: tests are written in the separate `floodcontrol-tests/` package before extracted implementations, no focused or skipped tests are permitted, and full local verification is required before completion.
 

@@ -83,7 +83,7 @@ The Figma favicon will be replaced with a neutral flood-control droplet favicon 
 
 ## Testing and verification
 
-Because no existing tests or CI workflow are present, the implementation will establish a small local gate:
+Because no existing tests or CI workflow are present, the implementation will establish a small local gate in a separate root-level `floodcontrol-tests/` package:
 
 - Vitest tests for entity filtering and state transition helpers, written before their extracted implementations.
 - A security contract test for the Node version floor and forbidden runtime sinks.
