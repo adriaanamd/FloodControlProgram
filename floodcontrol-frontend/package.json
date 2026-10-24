@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "start": "node .output/server/index.mjs",
+    "start": "node scripts/serve.mjs",
     "preview": "vite preview",
     "format": "oxfmt",
     "typecheck": "tsc --noEmit"

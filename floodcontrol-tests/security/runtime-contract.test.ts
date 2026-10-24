@@ -24,7 +24,7 @@ describe('runtime security contract', () => {
   })
 
   it('contains no dangerous runtime sinks in application/config code', () => {
-    const source = [readSourceTree(resolve(projectRoot, 'src')), readFileSync(resolve(projectRoot, 'vite.config.ts'), 'utf8')].join('\n')
+    const source = [readSourceTree(resolve(projectRoot, 'src')), readSourceTree(resolve(projectRoot, 'scripts')), readFileSync(resolve(projectRoot, 'vite.config.ts'), 'utf8')].join('\n')
 
     expect(source).not.toMatch(/node:zlib|child_process|(?:^|[^\w])exec(?:Sync)?\s*\(|spawn(?:Sync)?\s*\(|eval\s*\(|new Function\s*\(/)
   })

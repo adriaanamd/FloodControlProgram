@@ -1,4 +1,4 @@
-export type SensorState = 'Critical' | 'Warning' | 'Watch' | 'Normal'
+export type SensorState = "Critical" | "Warning" | "Watch" | "Normal"
 
 export type Sensor = {
   id: string

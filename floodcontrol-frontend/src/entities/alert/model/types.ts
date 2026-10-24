@@ -1,4 +1,4 @@
-export type AlertSeverity = 'Critical' | 'Warning' | 'Watch'
+export type AlertSeverity = "Critical" | "Warning" | "Watch"
 
 export type Alert = {
   severity: AlertSeverity
