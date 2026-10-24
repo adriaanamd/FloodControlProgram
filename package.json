@@ -1,0 +1,16 @@
+{
+  "name": "floodcontrol-repository",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [],
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "frontend:dev": "npm --prefix floodcontrol-frontend run dev",
+    "frontend:build": "npm --prefix floodcontrol-frontend run build",
+    "frontend:start": "npm --prefix floodcontrol-frontend run start",
+    "test": "npm --prefix floodcontrol-tests test",
+    "typecheck": "npm --prefix floodcontrol-tests run typecheck"
+  }
+}
