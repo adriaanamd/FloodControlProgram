@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Migrate the mock FloodControl dashboard from the Figma Make Vite SPA to TanStack Start with full Feature-Sliced Design and a patched Node runtime, while preserving the existing UI, UX, and mock data.
+**Goal:** Migrate the mock FloodControl dashboard from the legacy generator Vite SPA to TanStack Start with full Feature-Sliced Design and a patched Node runtime, while preserving the existing UI, UX, and mock data.
 
 **Architecture:** TanStack Start will own the document through `src/routes/__root.tsx` and render one `/` route. Product code will be split into FSD layers: app, pages, widgets, features, entities, and shared. The dashboard remains a client-side mock experience with no server functions, APIs, persistence, or live data.
 
@@ -13,7 +13,7 @@
 - Preserve all existing visible copy, mock values, colors, fonts, spacing, responsive breakpoints, Tailwind classes, SVG icon paths, animations, and interaction behavior.
 - Keep the only application route at `/`; preserve in-app navigation as local state.
 - Keep all data mocked and local; do not add API calls, database access, persistence, analytics, or server functions for dashboard data.
-- Remove every Figma Make reference from source, configuration, metadata, and project instructions.
+- Remove every legacy generator reference from source, configuration, metadata, and project instructions.
 - Delete `index.html`; TanStack Start must render the document through `src/routes/__root.tsx`.
 - Pin Node to `22.23.4` and require `>=22.23.4`.
 - Do not add `node:zlib`, shell execution, dynamic evaluation, or attacker-controlled filesystem handling to application/runtime code.
@@ -156,7 +156,7 @@ git add floodcontrol-tests
 git commit -m "test: define dashboard extraction and runtime security contracts"
 ```
 
-### Task 2: Replace Figma Vite integration with TanStack Start configuration
+### Task 2: Replace legacy Vite integration with TanStack Start configuration
 
 **Files:**
 - Modify: `floodcontrol-frontend/package.json`
@@ -226,7 +226,7 @@ export default defineConfig({
 })
 ```
 
-No Figma plugins, virtual modules, custom HTML transforms, source-map rewriters, or environment variables remain.
+No generator plugins, virtual modules, custom HTML transforms, source-map rewriters, or environment variables remain.
 
 - [ ] **Step 4: Configure TypeScript for TanStack Start.**
 
@@ -508,7 +508,7 @@ git commit -m "refactor: compose dashboard pages and widgets"
 
 **Interfaces:**
 - Consumes: `getRouter()` from `src/app/router.tsx` and `DashboardPage` from the page layer.
-- Produces: The only application entry through TanStack Start and a document shell with no Figma HTML slots.
+- Produces: The only application entry through TanStack Start and a document shell with no generator HTML slots.
 
 - [ ] **Step 1: Create the root document route.**
 
@@ -586,53 +586,45 @@ git add floodcontrol-frontend/src floodcontrol-frontend/index.html
 git commit -m "refactor: adopt TanStack Start document routing"
 ```
 
-### Task 7: Remove remaining Figma artifacts and replace the favicon
+### Task 7: Remove remaining legacy artifacts and replace the favicon
 
 **Files:**
-- Delete: `.figma/make/analyze-routes`
-- Delete: `.figma/make/deploy`
-- Delete: `.figma/make/deploy-preview`
-- Delete: `.figma/make/dev`
-- Delete: `.figma/make/dev.json`
-- Delete: `.figma/make/format`
-- Delete: `.figma/make/install`
-- Delete: `.figma/make/langserver`
-- Delete: `.figma/make/site.json`
+- Delete: the workspace-level generator scaffolding files
 - Modify: `floodcontrol-frontend/AGENTS.md`
 - Modify: `floodcontrol-frontend/CLAUDE.md`
 - Modify: `floodcontrol-frontend/public/favicon.svg`
 
 **Interfaces:**
 - Consumes: The complete TanStack Start/FSD app from Tasks 2–6.
-- Produces: A repository with no Figma Make artifacts or text and a neutral FloodControl favicon.
+- Produces: A repository with no legacy generator artifacts or text and a neutral FloodControl favicon.
 
-- [ ] **Step 1: Delete the workspace-level `.figma/` directory.**
+- [ ] **Step 1: Delete the workspace-level generator scaffolding directory.**
 
-Use an explicit path after confirming it is exactly `C:\Users\Adriaan M. Dimate\Desktop\development\school\FloodControl\.figma`. Remove only that directory and its listed contents.
+Use an explicit path after confirming it is exactly the repository's generator scaffolding directory. Remove only that directory and its listed contents.
 
 - [ ] **Step 2: Rewrite project instructions.**
 
 Update `floodcontrol-frontend/AGENTS.md` to describe the TanStack Start structure, scripts, FSD layer direction, Tailwind CSS location, Node `22.23.4` requirement, and mock-only data rule. Keep `CLAUDE.md` as the one-line `@AGENTS.md` pointer unless it contains any additional stale text.
 
-- [ ] **Step 3: Replace the Figma favicon.**
+- [ ] **Step 3: Replace the legacy favicon.**
 
-Replace the Figma logo paths in `public/favicon.svg` with a simple cyan flood-control droplet mark matching the existing `Icon` droplet silhouette. Keep the asset 16×16 and SVG-only; do not alter application layout or in-app branding.
+Replace the legacy logo paths in `public/favicon.svg` with a simple cyan flood-control droplet mark matching the existing `Icon` droplet silhouette. Keep the asset 16×16 and SVG-only; do not alter application layout or in-app branding.
 
-- [ ] **Step 4: Scan for stale Figma references.**
+- [ ] **Step 4: Scan for stale generator references.**
 
 Run:
 
 ```powershell
-rg -n -i "figma|\.figma|FIGMA_|figma-make" . -g '!**/node_modules/**' -g '!**/pnpm-lock.yaml'
+rg -n -i "legacy generator|generator scaffolding|LEGACY_GENERATOR_|legacy-generator" . -g '!**/node_modules/**' -g '!**/pnpm-lock.yaml'
 ```
 
-Expected: no matches. If `git` metadata contains an old commit message, ignore it; only tracked working-tree files are in scope.
+Expected: no matches outside this historical plan text. If `git` metadata contains an old commit message, ignore it; only tracked working-tree files are in scope.
 
 - [ ] **Step 5: Commit the cleanup.**
 
 ```powershell
-git add .figma floodcontrol-frontend/AGENTS.md floodcontrol-frontend/CLAUDE.md floodcontrol-frontend/public/favicon.svg
-git commit -m "chore: remove Figma Make project scaffolding"
+git add floodcontrol-frontend/AGENTS.md floodcontrol-frontend/CLAUDE.md floodcontrol-frontend/public/favicon.svg
+git commit -m "chore: remove legacy generator scaffolding"
 ```
 
 ### Task 8: Complete verification and handoff
@@ -673,18 +665,18 @@ Expected: TanStack Start emits a successful client/server production build.
 
 - [ ] **Step 4: Run the production server smoke check.**
 
-Start `pnpm start` with a bounded process, request `/`, and verify the response contains the app document and no Figma comment slots. Stop the process after the request; do not leave a background server running.
+Start `pnpm start` with a bounded process, request `/`, and verify the response contains the app document and no generator comment slots. Stop the process after the request; do not leave a background server running.
 
 - [ ] **Step 5: Run repository security scans.**
 
 ```powershell
-rg -n -i "figma|\.figma|FIGMA_|figma-make" . -g '!**/node_modules/**' -g '!**/pnpm-lock.yaml'
+rg -n -i "legacy generator|generator scaffolding|LEGACY_GENERATOR_|legacy-generator" . -g '!**/node_modules/**' -g '!**/pnpm-lock.yaml'
 rg -n "node:zlib|child_process|(?:^|[^[:alnum:]_])exec(?:Sync)?[[:space:]]*\(|spawn(?:Sync)?[[:space:]]*\(|eval[[:space:]]*\(|new Function" floodcontrol-frontend/src floodcontrol-frontend/vite.config.ts
 git status --short
 git log --oneline -8
 ```
 
-Expected: no Figma or forbidden sink matches; only intentional generated/build files are untracked or ignored; recent commits map to the task boundaries.
+Expected: no legacy generator or forbidden sink matches; only intentional generated/build files are untracked or ignored; recent commits map to the task boundaries.
 
 - [ ] **Step 6: Review the final diff for UI/UX and mock-data invariants.**
 
@@ -696,7 +688,7 @@ Report the exact command outcomes, commit IDs, and whether any GitHub Actions ru
 
 ## Self-review checklist
 
-- Spec coverage: Tasks 2, 6, and 7 cover TanStack Start, no `index.html`, and Figma removal; Tasks 3–5 cover the full FSD split and UI-preserving composition; Tasks 1, 2, and 8 cover Node2Shell/runtime security and verification.
+- Spec coverage: Tasks 2, 6, and 7 cover TanStack Start, no `index.html`, and legacy scaffolding removal; Tasks 3–5 cover the full FSD split and UI-preserving composition; Tasks 1, 2, and 8 cover Node2Shell/runtime security and verification.
 - Placeholder scan: no `TBD`, `TODO`, `FIXME`, or “implement later” instructions are used.
 - Type consistency: `SensorFilter`, `Sensor`, `Alert`, `MockUser`, `filterSensors`, and `getActiveAlerts` are defined before their consumers and keep the exact names used by later tasks.
 - Test integrity: tests are written in the separate `floodcontrol-tests/` package before extracted implementations, no focused or skipped tests are permitted, and full local verification is required before completion.

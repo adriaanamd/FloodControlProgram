@@ -2,14 +2,14 @@
 
 ## Goal
 
-Remove Figma Make scaffolding, migrate the mock FloodControl dashboard to TanStack Start without `index.html`, reorganize the frontend into full Feature-Sliced Design, and harden the Node runtime contract against Node2Shell while preserving the existing UI, UX, and mock data.
+Remove legacy generator scaffolding, migrate the mock FloodControl dashboard to TanStack Start without `index.html`, reorganize the frontend into full Feature-Sliced Design, and harden the Node runtime contract against Node2Shell while preserving the existing UI, UX, and mock data.
 
 ## Current context
 
 - The active frontend is `floodcontrol-frontend/`.
 - Nearly all product UI, state, mock data, and SVG icon definitions currently live in `floodcontrol-frontend/src/App.tsx`.
 - The project is a React 19 + Vite + Tailwind CSS 4 client-only app with no backend source, test suite, CI workflow, or Git metadata in this workspace.
-- Figma Make traces exist in the package name, `AGENTS.md`, `index.html`, `vite.config.ts`, and the workspace-level `.figma/` directory.
+- Legacy generator traces exist in the package name, `AGENTS.md`, `index.html`, `vite.config.ts`, and the workspace-level scaffolding directory.
 - `floodcontrol-frontend/.mise.toml` currently specifies the broad Node range `22`.
 
 ## Security basis
@@ -70,16 +70,16 @@ The following behavior and presentation are invariants:
 - The route remains `/`; no new navigation affordances or URLs are introduced.
 - No live API, database, persistence, analytics, or external data source is added.
 
-The Figma favicon will be replaced with a neutral flood-control droplet favicon derived from the existing product mark. This is metadata/branding cleanup and does not alter the dashboard UI.
+The legacy favicon will be replaced with a neutral flood-control droplet favicon derived from the existing product mark. This is metadata/branding cleanup and does not alter the dashboard UI.
 
-## Figma removal
+## Legacy scaffolding removal
 
-- Delete the workspace-level `.figma/` directory.
+- Delete the workspace-level generator scaffolding directory.
 - Replace `vite.config.ts` with a minimal TanStack Start + React + Tailwind configuration using only standard `PORT` handling.
-- Remove Figma Make plugin functions, virtual routes, injected HTML comment slots, Figma environment variables, and Figma-specific comments.
+- Remove generator plugin functions, virtual routes, injected HTML comment slots, generator environment variables, and generator-specific comments.
 - Remove `floodcontrol-frontend/index.html` and `floodcontrol-frontend/src/main.tsx`.
 - Update `package.json` name and scripts for the TanStack Start runtime.
-- Update project instructions and metadata so repository text contains no Figma Make references.
+- Update project instructions and metadata so repository text contains no legacy generator references.
 
 ## Testing and verification
 
@@ -90,7 +90,7 @@ Because no existing tests or CI workflow are present, the implementation will es
 - TypeScript checking with `tsc --noEmit`.
 - Formatting with the existing formatter.
 - TanStack Start production build and server smoke check.
-- Repository scans for `figma`, `.figma`, shell/eval/decompression sinks, and stale `index.html` references.
+- Repository scans for legacy generator markers, shell/eval/decompression sinks, and stale `index.html` references.
 
-The workspace has no Git metadata, so the design and implementation cannot be committed from this environment. Verification results will distinguish local checks from unavailable remote CI/commit checks.
+The repository has Git metadata, but no GitHub Actions workflow was present during implementation. Verification results distinguish local checks from unavailable remote CI checks.
 
