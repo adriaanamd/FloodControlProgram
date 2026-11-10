@@ -1,7 +1,9 @@
 import { useState } from "react"
 import type { MockUser } from "../../../entities/user/model/types"
 import { Button } from "../../../shared/ui/Button"
+import { CityMark } from "../../../shared/ui/CityMark"
 import { Icon } from "../../../shared/ui/Icon"
+import { SectionFolio } from "../../../shared/ui/SectionFolio"
 import { TextField } from "../../../shared/ui/TextField"
 
 export function AuthScreen({
@@ -25,6 +27,7 @@ export function AuthScreen({
       setError("Complete all required fields to continue.")
       return
     }
+
     onAuthenticate({
       name:
         mode === "signup"
@@ -49,89 +52,73 @@ export function AuthScreen({
   }
 
   return (
-    <main className="relative grid min-h-screen overflow-hidden bg-slate-950 text-slate-100 lg:grid-cols-[1.05fr_.95fr]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,.12),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(99,102,241,.12),transparent_35%)]" />
-      <section className="relative hidden min-h-screen flex-col justify-between border-r border-white/8 p-12 lg:flex">
-        <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-xl bg-cyan-400 text-slate-950">
-            <Icon name="droplet" />
-          </div>
-          <div>
-            <p className="text-xl font-semibold">
-              iFlood <span className="text-cyan-400">2.0</span>
-            </p>
-            <p className="text-[10px] tracking-[0.22em] text-slate-500 uppercase">
-              Flood Intelligence Platform
-            </p>
-          </div>
+    <main className="min-h-screen bg-[var(--surface-deep)] text-[var(--text)] lg:grid lg:grid-cols-[1.05fr_.95fr]">
+      <section className="relative hidden min-h-screen overflow-hidden border-r border-[var(--rule)] lg:flex lg:flex-col lg:justify-between">
+        <img
+          src="/assets/olongapo/main-banner.png"
+          alt=""
+          className="absolute inset-0 size-full object-cover opacity-35"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,6,5,.94),rgba(5,6,5,.68)),linear-gradient(0deg,rgba(5,6,5,.94),transparent_55%)]" />
+        <div className="relative p-10">
+          <CityMark />
         </div>
-        <div className="max-w-xl">
-          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/8 px-3 py-1.5 text-xs text-cyan-300">
-            <span className="size-1.5 animate-pulse rounded-full bg-cyan-400" />
-            Citywide network online
-          </div>
-          <h1 className="text-5xl font-semibold leading-[1.08] tracking-tight text-white">
-            Street-level awareness.
-            <br />
-            <span className="text-cyan-400">Faster flood response.</span>
+        <div className="relative max-w-2xl p-10">
+          <SectionFolio index="00" label="Demo environment" />
+          <h1 className="mt-5 max-w-xl font-display text-4xl font-semibold leading-tight text-white xl:text-6xl">
+            Flood intelligence for Olongapo City.
           </h1>
-          <p className="mt-6 max-w-lg text-base leading-relaxed text-slate-400">
-            Monitor distributed IoT sensors, predict flood risk, and coordinate
-            DRRM response from one operational view.
+          <p className="mt-5 max-w-lg text-sm leading-7 text-[var(--text-muted)]">
+            Monitor sensors, assess rising water levels, and coordinate response
+            from one operational view.
           </p>
-          <div className="mt-10 grid grid-cols-3 gap-3">
+          <div className="mt-10 grid max-w-xl grid-cols-3 divide-x divide-[var(--rule)] border-y border-[var(--rule)]">
             {[
               ["50", "IoT sensors"],
               ["5", "Districts"],
               ["12s", "Refresh rate"],
             ].map(([value, label]) => (
-              <div
-                key={label}
-                className="rounded-2xl border border-white/8 bg-white/[0.035] p-4"
-              >
-                <p className="text-2xl font-semibold text-white">{value}</p>
-                <p className="mt-1 text-xs text-slate-500">{label}</p>
+              <div key={label} className="px-4 py-4 first:pl-0">
+                <p className="font-display text-2xl font-semibold text-white">
+                  {value}
+                </p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-[var(--text-dim)]">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
         </div>
-        <p className="text-xs text-slate-600">
-          San Isidro City Disaster Risk Reduction & Management Office
+        <p className="relative p-10 text-xs text-[var(--text-dim)]">
+          Official city identity asset · FloodControl demo
         </p>
       </section>
 
-      <section className="relative flex min-h-screen items-center justify-center p-5 sm:p-10">
+      <section className="flex min-h-screen items-center justify-center p-5 sm:p-10">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="grid size-10 place-items-center rounded-xl bg-cyan-400 text-slate-950">
-              <Icon name="droplet" />
-            </div>
-            <p className="text-xl font-semibold">
-              iFlood <span className="text-cyan-400">2.0</span>
-            </p>
+          <div className="mb-8 lg:hidden">
+            <CityMark />
           </div>
-          <p className="text-xs font-semibold tracking-[0.18em] text-cyan-400 uppercase">
-            Secure operations access
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+          <SectionFolio index="ACCESS" label="Olongapo City operations" />
+          <h2 className="mt-4 font-display text-3xl font-semibold tracking-tight text-white">
             {mode === "login" ? "Welcome back" : "Create an account"}
           </h2>
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="mt-3 text-sm leading-6 text-[var(--text-muted)]">
             {mode === "login"
               ? "Sign in to access the flood monitoring command center."
               : "Register a demo user for the monitoring platform."}
           </p>
 
-          <div className="mt-7 grid grid-cols-2 gap-2 rounded-xl bg-slate-900 p-1">
+          <div className="mt-7 grid grid-cols-2 border border-[var(--rule)] bg-[var(--surface-raised)] p-1">
             <Button
               onClick={() => {
                 setMode("login")
                 setError("")
               }}
-              className={`rounded-lg py-2.5 text-sm font-medium ${
+              className={`py-2.5 text-sm font-medium ${
                 mode === "login"
-                  ? "bg-slate-700 text-white shadow"
-                  : "text-slate-500 hover:text-white"
+                  ? "bg-[var(--signal)] text-[var(--surface-deep)]"
+                  : "text-[var(--text-muted)] hover:text-white"
               }`}
             >
               Log in
@@ -141,10 +128,10 @@ export function AuthScreen({
                 setMode("signup")
                 setError("")
               }}
-              className={`rounded-lg py-2.5 text-sm font-medium ${
+              className={`py-2.5 text-sm font-medium ${
                 mode === "signup"
-                  ? "bg-slate-700 text-white shadow"
-                  : "text-slate-500 hover:text-white"
+                  ? "bg-[var(--signal)] text-[var(--surface-deep)]"
+                  : "text-[var(--text-muted)] hover:text-white"
               }`}
             >
               Sign up
@@ -152,26 +139,26 @@ export function AuthScreen({
           </div>
 
           <div className="mt-6">
-            <p className="mb-2 text-xs font-medium text-slate-400">
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
               Access role
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-px border border-[var(--rule)] bg-[var(--rule)]">
               {(["Administrator", "DRRM Monitor"] as MockUser["role"][]).map(
                 (item) => (
                   <Button
                     key={item}
                     onClick={() => setRole(item)}
-                    className={`rounded-xl border p-3 text-left ${
+                    className={`bg-[var(--surface-raised)] p-4 text-left ${
                       role === item
-                        ? "border-cyan-400/60 bg-cyan-400/8"
-                        : "border-white/10 bg-white/[0.025] hover:border-white/20"
+                        ? "border-l-2 border-[var(--signal)] bg-[var(--signal-soft)]"
+                        : "hover:bg-[var(--surface-elevated)]"
                     }`}
                   >
                     <span
-                      className={`grid size-8 place-items-center rounded-lg ${
+                      className={`grid size-8 place-items-center border border-[var(--rule)] ${
                         role === item
-                          ? "bg-cyan-400 text-slate-950"
-                          : "bg-slate-800 text-slate-400"
+                          ? "bg-[var(--signal)] text-[var(--surface-deep)]"
+                          : "text-[var(--text-muted)]"
                       }`}
                     >
                       <Icon
@@ -184,7 +171,7 @@ export function AuthScreen({
                     <span className="mt-3 block text-xs font-semibold text-white">
                       {item}
                     </span>
-                    <span className="mt-1 block text-[10px] leading-relaxed text-slate-500">
+                    <span className="mt-1 block text-[10px] leading-relaxed text-[var(--text-dim)]">
                       {item === "Administrator"
                         ? "Full system and user controls"
                         : "Monitoring and response tools"}
@@ -220,13 +207,13 @@ export function AuthScreen({
             />
           </div>
           {error && (
-            <p className="mt-3 rounded-lg bg-rose-500/10 px-3 py-2 text-xs text-rose-300">
+            <p className="mt-3 border border-[color-mix(in_srgb,var(--danger)_40%,transparent)] bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] px-3 py-2 text-xs text-[var(--danger)]">
               {error}
             </p>
           )}
           <Button
             onClick={submit}
-            className="mt-5 w-full rounded-xl bg-cyan-400 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/10 hover:bg-cyan-300"
+            className="mt-5 w-full bg-[var(--signal)] py-3 text-sm font-semibold text-[var(--surface-deep)] hover:bg-[#ffd166]"
           >
             {mode === "login" ? "Access command center" : "Create account"}
           </Button>
@@ -234,27 +221,27 @@ export function AuthScreen({
           {mode === "login" && (
             <div className="mt-6">
               <div className="flex items-center gap-3">
-                <span className="h-px flex-1 bg-white/8" />
-                <span className="text-[10px] tracking-wider text-slate-600 uppercase">
+                <span className="h-px flex-1 bg-[var(--rule)]" />
+                <span className="text-[10px] uppercase tracking-[0.14em] text-[var(--text-dim)]">
                   Demo access
                 </span>
-                <span className="h-px flex-1 bg-white/8" />
+                <span className="h-px flex-1 bg-[var(--rule)]" />
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="mt-4 grid grid-cols-2 gap-px border border-[var(--rule)] bg-[var(--rule)]">
                 <Button
                   onClick={() => useDemo("Administrator")}
-                  className="rounded-xl border border-white/10 px-3 py-2.5 text-xs text-slate-300 hover:bg-white/5"
+                  className="bg-[var(--surface-raised)] px-3 py-2.5 text-xs text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] hover:text-white"
                 >
                   Use Admin demo
                 </Button>
                 <Button
                   onClick={() => useDemo("DRRM Monitor")}
-                  className="rounded-xl border border-white/10 px-3 py-2.5 text-xs text-slate-300 hover:bg-white/5"
+                  className="bg-[var(--surface-raised)] px-3 py-2.5 text-xs text-[var(--text-muted)] hover:bg-[var(--surface-elevated)] hover:text-white"
                 >
                   Use Monitor demo
                 </Button>
               </div>
-              <p className="mt-3 text-center text-[10px] text-slate-600">
+              <p className="mt-3 text-center text-[10px] text-[var(--text-dim)]">
                 Select a demo, then access the command center.
               </p>
             </div>

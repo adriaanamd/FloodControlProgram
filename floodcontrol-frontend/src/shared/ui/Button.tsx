@@ -21,7 +21,7 @@ export function Button({
       aria-label={ariaLabel}
       onClick={onClick}
       style={style}
-      className={`cursor-pointer transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500 ${className}`}
+      className={`focus-ring cursor-pointer transition-colors ${className}`}
     >
       {children}
     </button>
