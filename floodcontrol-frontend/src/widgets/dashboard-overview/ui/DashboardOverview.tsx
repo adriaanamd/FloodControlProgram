@@ -1,6 +1,6 @@
-import type { CSSProperties } from "react"
 import { alerts } from "../../../entities/alert/model/mock"
 import { getActiveAlerts } from "../../../entities/alert/model/selectors"
+import { floodLocations } from "../../../entities/flood/model/mock"
 import { sensors } from "../../../entities/sensor/model/mock"
 import {
   filterSensors,
@@ -13,6 +13,7 @@ import { SensorFilter as SensorFilterControl } from "../../../features/sensor-fi
 import { Button } from "../../../shared/ui/Button"
 import { Icon, type IconName } from "../../../shared/ui/Icon"
 import { SectionFolio } from "../../../shared/ui/SectionFolio"
+import { FloodLeafletMap } from "../../flood-map/ui/FloodLeafletMap"
 
 type DashboardOverviewProps = {
   filter: SensorFilter
@@ -96,62 +97,14 @@ export function DashboardOverview({
             </Button>
           </div>
           <div className="relative h-[29rem] overflow-hidden bg-[#10140f]">
-            <div className="map-grid absolute inset-0 opacity-70" />
-            <svg
-              className="absolute inset-0 size-full opacity-60"
-              viewBox="0 0 800 500"
-              preserveAspectRatio="none"
-            >
-              <g fill="none" stroke="#414c3e" strokeWidth="8">
-                <path d="M-20 120C140 80 250 170 410 130s260-20 430 30" />
-                <path d="M110-20c30 150 80 240 20 550M580-20c-70 150-30 310 80 540" />
-                <path d="M-20 390c190-60 300-10 460-60s260 0 390-50" />
-              </g>
-              <g fill="none" stroke="#2a3328" strokeWidth="3">
-                <path d="M-10 245h850M320-20v550M735-20 640 520M30 25l740 455" />
-                <path d="M220-20 480 520M-10 470 790 20" />
-              </g>
-              <path
-                d="M-10 300c160-100 250 90 410 5S650 200 820 90"
-                fill="none"
-                stroke="#8b6700"
-                strokeWidth="18"
-                opacity=".55"
-              />
-            </svg>
-            <div className="absolute left-[8%] top-[9%] border border-[var(--rule)] bg-[var(--surface-deep)]/75 px-2 py-1 text-[10px] tracking-wide text-[var(--text-dim)] uppercase">
-              District 1
-            </div>
-            <div className="absolute right-[9%] top-[45%] border border-[var(--rule)] bg-[var(--surface-deep)]/75 px-2 py-1 text-[10px] tracking-wide text-[var(--text-dim)] uppercase">
-              District 4
-            </div>
-            <div className="absolute bottom-[8%] left-[38%] border border-[var(--rule)] bg-[var(--surface-deep)]/75 px-2 py-1 text-[10px] tracking-wide text-[var(--text-dim)] uppercase">
-              District 3
-            </div>
-            {visibleSensors.map((sensor) => (
-              <Button
-                key={sensor.id}
-                ariaLabel={`View ${sensor.id}`}
-                onClick={() => onSelectSensor(sensor)}
-                className="group absolute -translate-x-1/2 -translate-y-1/2"
-                style={
-                  { left: `${sensor.x}%`, top: `${sensor.y}%` } as CSSProperties
-                }
-              >
-                <span
-                  className={`absolute inset-0 animate-ping rounded-full opacity-20 ${severityStyles[sensor.state].split(" ")[0]}`}
-                />
-                <span
-                  className={`relative grid size-8 place-items-center rounded-full border-4 border-[#10140f] ${severityStyles[sensor.state]}`}
-                >
-                  <Icon name="droplet" className="size-3.5" />
-                </span>
-                <span className="pointer-events-none absolute left-1/2 top-10 hidden w-max -translate-x-1/2 border border-[var(--rule)] bg-[var(--surface-deep)] px-2 py-1 text-[10px] text-white group-hover:block">
-                  {sensor.id} · {sensor.level} cm
-                </span>
-              </Button>
-            ))}
-            <div className="absolute bottom-4 left-4 right-4 border border-[var(--rule-strong)] bg-[var(--surface-deep)]/95 p-4 sm:left-auto sm:w-80">
+            <FloodLeafletMap
+              floodLocations={floodLocations}
+              visibleSensors={visibleSensors}
+              selectedSensor={selectedSensor}
+              onSelectSensor={onSelectSensor}
+              className="h-full min-h-0"
+            />
+            <div className="absolute bottom-4 left-4 right-4 z-[1000] border border-[var(--rule-strong)] bg-[var(--surface-deep)]/95 p-4 sm:left-auto sm:w-80">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -228,7 +181,9 @@ export function DashboardOverview({
                           {alert.place}
                         </p>
                         {index === 0 && (
-                          <AcknowledgeAlertButton onAcknowledge={onAcknowledge} />
+                          <AcknowledgeAlertButton
+                            onAcknowledge={onAcknowledge}
+                          />
                         )}
                       </div>
                     </div>
@@ -274,8 +229,8 @@ export function DashboardOverview({
             <div className="mt-4 flex items-center gap-2 border border-[var(--rule)] bg-[var(--surface-deep)]/40 px-3 py-2 text-xs text-[var(--text-muted)]">
               <Icon name="activity" className="size-4 text-[var(--signal)]" />
               <span>
-                <strong className="text-white">87% confidence</strong> based
-                on rainfall &amp; terrain
+                <strong className="text-white">87% confidence</strong> based on
+                rainfall &amp; terrain
               </span>
             </div>
           </article>
@@ -307,7 +262,9 @@ export function DashboardOverview({
                 <p className={`font-display text-xl font-semibold ${color}`}>
                   {value}
                 </p>
-                <p className="mt-1 text-[10px] text-[var(--text-dim)]">{label}</p>
+                <p className="mt-1 text-[10px] text-[var(--text-dim)]">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
@@ -332,8 +289,14 @@ export function DashboardOverview({
               ["radio", "8", "Units"],
               ["clock", "6m", "Avg. dispatch"],
             ].map(([icon, value, label]) => (
-              <div key={label} className="flex items-center gap-3 p-3 first:pl-0">
-                <Icon name={icon as IconName} className="size-4 text-[var(--signal)]" />
+              <div
+                key={label}
+                className="flex items-center gap-3 p-3 first:pl-0"
+              >
+                <Icon
+                  name={icon as IconName}
+                  className="size-4 text-[var(--signal)]"
+                />
                 <div>
                   <p className="text-sm font-semibold text-white">{value}</p>
                   <p className="text-[10px] text-[var(--text-dim)]">{label}</p>

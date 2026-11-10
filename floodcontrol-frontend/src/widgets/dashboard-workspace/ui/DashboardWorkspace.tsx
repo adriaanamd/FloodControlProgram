@@ -1,5 +1,6 @@
-import { useState, type CSSProperties } from "react"
+import { useState } from "react"
 import { alerts } from "../../../entities/alert/model/mock"
+import { floodLocations } from "../../../entities/flood/model/mock"
 import {
   forecastPeriods,
   holtParameters,
@@ -16,6 +17,7 @@ import { Button } from "../../../shared/ui/Button"
 import { Icon } from "../../../shared/ui/Icon"
 import { PageHeading } from "../../../shared/ui/PageHeading"
 import { Row } from "../../../shared/ui/Row"
+import { FloodLeafletMap } from "../../flood-map/ui/FloodLeafletMap"
 
 const filterItems = [
   "All",
@@ -88,68 +90,13 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
         </div>
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
           <article className="relative min-h-[42rem] overflow-hidden border border-[var(--rule)] bg-[#10140f]">
-            <div className="map-grid absolute inset-0 opacity-70" />
-            <svg
-              className="absolute inset-0 size-full opacity-60"
-              viewBox="0 0 900 700"
-              preserveAspectRatio="none"
-            >
-              <g fill="none" stroke="#414c3e" strokeWidth="10">
-                <path d="M-30 130C170 70 300 190 490 120s280 20 450 0" />
-                <path d="M120-20c20 210 100 330 20 750M650-20c-90 210-40 440 100 750" />
-                <path d="M-20 510c220-90 340 10 510-70s290 20 450-30" />
-              </g>
-              <g fill="none" stroke="#2a3328" strokeWidth="4">
-                <path d="M-20 300h950M350-20v750M820-20 700 730M20 30l850 610M250-20 540 730M-20 650 880 30" />
-              </g>
-              <path
-                d="M-10 390c170-120 290 100 450-10S700 270 940 100"
-                fill="none"
-                stroke="#8b6700"
-                strokeWidth="24"
-                opacity=".6"
-              />
-            </svg>
-            {filtered.map((sensor) => (
-              <Button
-                key={sensor.id}
-                ariaLabel={`Select ${sensor.id}`}
-                onClick={() => setSelected(sensor)}
-                className="group absolute -translate-x-1/2 -translate-y-1/2"
-                style={
-                  { left: `${sensor.x}%`, top: `${sensor.y}%` } as CSSProperties
-                }
-              >
-                <span
-                  className={`absolute inset-0 animate-ping rounded-full opacity-20 ${severityStyles[sensor.state].split(" ")[0]}`}
-                />
-                <span
-                  className={`relative grid size-8 place-items-center rounded-full border-4 border-[#10140f] ${severityStyles[sensor.state]}`}
-                >
-                  <Icon name="droplet" className="size-3" />
-                </span>
-              </Button>
-            ))}
-            <div className="absolute bottom-4 left-4 border border-[var(--rule-strong)] bg-[var(--surface-deep)]/95 p-3 text-xs">
-              <div className="mb-2 font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
-                Map legend · demo telemetry
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {(["Critical", "Warning", "Watch", "Normal"] as const).map(
-                  (status) => (
-                    <span
-                      key={status}
-                      className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)]"
-                    >
-                      <span
-                        className={`size-2 rounded-full ${severityStyles[status].split(" ")[0]}`}
-                      />
-                      {status}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
+            <FloodLeafletMap
+              floodLocations={floodLocations}
+              visibleSensors={filtered}
+              selectedSensor={selected}
+              onSelectSensor={setSelected}
+              className="min-h-[42rem]"
+            />
           </article>
           <div className="space-y-4">
             <article className={`${panelClass} p-5`}>
@@ -166,7 +113,9 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               <h2 className="mt-4 font-display text-lg font-semibold text-white">
                 {selected.street}
               </h2>
-              <p className="text-xs text-[var(--text-muted)]">{selected.zone}</p>
+              <p className="text-xs text-[var(--text-muted)]">
+                {selected.zone}
+              </p>
               <p className="mt-6 font-display text-4xl font-semibold text-white">
                 {selected.level}
                 <span className="ml-1 text-sm font-normal text-[var(--text-dim)]">
@@ -187,27 +136,30 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
                 Map layers
               </h2>
-              {["Flood depth", "Road closures", "Evacuation centers", "Drainage network"].map(
-                (layer, i) => (
-                  <div
-                    key={layer}
-                    className="mt-3 flex items-center justify-between text-sm text-[var(--text-muted)]"
+              {[
+                "Flood depth",
+                "Road closures",
+                "Evacuation centers",
+                "Drainage network",
+              ].map((layer, i) => (
+                <div
+                  key={layer}
+                  className="mt-3 flex items-center justify-between text-sm text-[var(--text-muted)]"
+                >
+                  <span>{layer}</span>
+                  <span
+                    className={`h-5 w-9 border border-[var(--rule)] p-0.5 ${
+                      i < 2 ? "bg-[var(--signal)]" : "bg-[var(--surface-deep)]"
+                    }`}
                   >
-                    <span>{layer}</span>
                     <span
-                      className={`h-5 w-9 border border-[var(--rule)] p-0.5 ${
-                        i < 2 ? "bg-[var(--signal)]" : "bg-[var(--surface-deep)]"
+                      className={`block size-4 bg-[var(--surface-deep)] transition ${
+                        i < 2 ? "translate-x-4" : ""
                       }`}
-                    >
-                      <span
-                        className={`block size-4 bg-[var(--surface-deep)] transition ${
-                          i < 2 ? "translate-x-4" : ""
-                        }`}
-                      />
-                    </span>
-                  </div>
-                ),
-              )}
+                    />
+                  </span>
+                </div>
+              ))}
             </article>
           </div>
         </div>
@@ -242,21 +194,26 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
         <article className={`${panelClass} overflow-hidden`}>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--rule)] p-4">
             <div className="flex flex-wrap gap-2">
-              {["All", "District 1", "District 2", "District 3", "District 4", "District 5"].map(
-                (item) => (
-                  <Button
-                    key={item}
-                    onClick={() => setView(item)}
-                    className={
-                      view === item
-                        ? "bg-[var(--signal)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--surface-deep)]"
-                        : "bg-[var(--surface-deep)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)] hover:text-white"
-                    }
-                  >
-                    {item}
-                  </Button>
-                ),
-              )}
+              {[
+                "All",
+                "District 1",
+                "District 2",
+                "District 3",
+                "District 4",
+                "District 5",
+              ].map((item) => (
+                <Button
+                  key={item}
+                  onClick={() => setView(item)}
+                  className={
+                    view === item
+                      ? "bg-[var(--signal)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--surface-deep)]"
+                      : "bg-[var(--surface-deep)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)] hover:text-white"
+                  }
+                >
+                  {item}
+                </Button>
+              ))}
             </div>
             <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
               {filtered.length} devices · demo telemetry
@@ -276,14 +233,27 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               </thead>
               <tbody className="divide-y divide-[var(--rule)]">
                 {filtered.map((sensor, index) => (
-                  <tr key={sensor.id} className="hover:bg-[var(--surface-elevated)]">
-                    <td className="px-5 py-4 font-medium text-white">{sensor.id}</td>
-                    <td className="px-5 py-4">
-                      <p className="text-[var(--text-muted)]">{sensor.street}</p>
-                      <p className="text-[10px] text-[var(--text-dim)]">{sensor.zone}</p>
+                  <tr
+                    key={sensor.id}
+                    className="hover:bg-[var(--surface-elevated)]"
+                  >
+                    <td className="px-5 py-4 font-medium text-white">
+                      {sensor.id}
                     </td>
-                    <td className="px-5 py-4 text-[var(--text-muted)]">{sensor.level} cm</td>
-                    <td className="px-5 py-4 text-[var(--signal)]">{92 - (index % 8)}%</td>
+                    <td className="px-5 py-4">
+                      <p className="text-[var(--text-muted)]">
+                        {sensor.street}
+                      </p>
+                      <p className="text-[10px] text-[var(--text-dim)]">
+                        {sensor.zone}
+                      </p>
+                    </td>
+                    <td className="px-5 py-4 text-[var(--text-muted)]">
+                      {sensor.level} cm
+                    </td>
+                    <td className="px-5 py-4 text-[var(--signal)]">
+                      {92 - (index % 8)}%
+                    </td>
                     <td className="px-5 py-4 text-[var(--text-muted)]">
                       {index === 7 ? "16%" : `${96 - index * 3}%`}
                     </td>
@@ -392,7 +362,8 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   Water-level forecast
                 </h2>
                 <p className="mt-1 text-[10px] text-[var(--text-dim)]">
-                  {selectedPredictionSensor.id} · {selectedPredictionSensor.street} · {period} · demo model
+                  {selectedPredictionSensor.id} ·{" "}
+                  {selectedPredictionSensor.street} · {period} · demo model
                 </p>
               </div>
               <span
@@ -408,13 +379,26 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient id="prediction-area" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="prediction-area"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="0" stopColor="#ffb800" stopOpacity=".35" />
                     <stop offset="1" stopColor="#ffb800" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <polygon points={uncertaintyPoints} fill="#ffb800" fillOpacity=".08" />
-                <polygon points={forecastAreaPoints} fill="url(#prediction-area)" />
+                <polygon
+                  points={uncertaintyPoints}
+                  fill="#ffb800"
+                  fillOpacity=".08"
+                />
+                <polygon
+                  points={forecastAreaPoints}
+                  fill="url(#prediction-area)"
+                />
                 <line
                   x1="0"
                   x2="800"
@@ -424,7 +408,12 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   strokeDasharray="6 6"
                   strokeOpacity=".65"
                 />
-                <polyline points={chartPoints} fill="none" stroke="#ffb800" strokeWidth="4" />
+                <polyline
+                  points={chartPoints}
+                  fill="none"
+                  stroke="#ffb800"
+                  strokeWidth="4"
+                />
                 <text
                   x="795"
                   y={Math.max(14, 255 - (60 / chartMax) * 230)}
@@ -454,9 +443,20 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                 Expected in +{predictiveForecast.peakHour} hours
               </p>
               <div className="mt-5 border-t border-[var(--rule)] pt-4">
-                <Row label="Model confidence" value={`${predictiveForecast.confidence}%`} />
-                <Row label="Potential road impact" value={`${predictiveForecast.roadImpact} streets`} />
-                <Row label="Population exposed" value={predictiveForecast.populationExposed.toLocaleString("en-US")} />
+                <Row
+                  label="Model confidence"
+                  value={`${predictiveForecast.confidence}%`}
+                />
+                <Row
+                  label="Potential road impact"
+                  value={`${predictiveForecast.roadImpact} streets`}
+                />
+                <Row
+                  label="Population exposed"
+                  value={predictiveForecast.populationExposed.toLocaleString(
+                    "en-US",
+                  )}
+                />
               </div>
             </article>
             <article className={`${panelClass} p-5`}>
@@ -505,13 +505,19 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               </thead>
               <tbody className="divide-y divide-[var(--rule)]">
                 {comparisonRows.map((row) => {
-                  const sensor = sensors.find((item) => item.id === row.sensorId) ?? sensors[0]
+                  const sensor =
+                    sensors.find((item) => item.id === row.sensorId) ??
+                    sensors[0]
                   const isSelected = sensor.id === selectedPredictionSensor.id
 
                   return (
                     <tr
                       key={row.sensorId}
-                      className={isSelected ? "bg-[var(--signal-soft)]" : "hover:bg-[var(--surface-elevated)]"}
+                      className={
+                        isSelected
+                          ? "bg-[var(--signal-soft)]"
+                          : "hover:bg-[var(--surface-elevated)]"
+                      }
                     >
                       <td className="px-5 py-3">
                         <Button
@@ -520,14 +526,26 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                         >
                           {row.sensorId}
                         </Button>
-                        <p className="mt-0.5 text-[10px] text-[var(--text-dim)]">{sensor.street}</p>
+                        <p className="mt-0.5 text-[10px] text-[var(--text-dim)]">
+                          {sensor.street}
+                        </p>
                       </td>
-                      <td className="px-5 py-3 text-[var(--text-muted)]">{row.currentLevel} cm</td>
-                      <td className="px-5 py-3 font-medium text-white">{Math.round(row.peakLevel)} cm</td>
-                      <td className="px-5 py-3 text-[var(--text-muted)]">+{row.peakHour}h</td>
-                      <td className="px-5 py-3 text-[var(--text-muted)]">{row.confidence}%</td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">
+                        {row.currentLevel} cm
+                      </td>
+                      <td className="px-5 py-3 font-medium text-white">
+                        {Math.round(row.peakLevel)} cm
+                      </td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">
+                        +{row.peakHour}h
+                      </td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">
+                        {row.confidence}%
+                      </td>
                       <td className="px-5 py-3">
-                        <span className={`px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] ${severityStyles[row.risk]}`}>
+                        <span
+                          className={`px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] ${severityStyles[row.risk]}`}
+                        >
                           {row.risk}
                         </span>
                       </td>
@@ -557,8 +575,12 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           ["6m", "Avg. response"],
         ].map(([value, label]) => (
           <article key={label} className="p-4">
-            <p className="font-display text-2xl font-semibold text-[var(--signal)]">{value}</p>
-            <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">{label}</p>
+            <p className="font-display text-2xl font-semibold text-[var(--signal)]">
+              {value}
+            </p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
+              {label}
+            </p>
           </article>
         ))}
       </div>
@@ -605,7 +627,8 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
-                        {alertState[index] || (index < 2 ? "Unassigned" : "Monitoring")}
+                        {alertState[index] ||
+                          (index < 2 ? "Unassigned" : "Monitoring")}
                       </span>
                       <Button
                         onClick={() =>
@@ -642,12 +665,19 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               ["Rescue 4", "On scene"],
               ["Traffic 3", "Available"],
             ].map(([team, status]) => (
-              <div key={team} className="mt-4 flex items-center justify-between">
+              <div
+                key={team}
+                className="mt-4 flex items-center justify-between"
+              >
                 <div className="flex items-center gap-2">
                   <span className="size-2 bg-[var(--signal)]" />
-                  <span className="text-sm text-[var(--text-muted)]">{team}</span>
+                  <span className="text-sm text-[var(--text-muted)]">
+                    {team}
+                  </span>
                 </div>
-                <span className="text-[10px] text-[var(--text-dim)]">{status}</span>
+                <span className="text-[10px] text-[var(--text-dim)]">
+                  {status}
+                </span>
               </div>
             ))}
           </article>
