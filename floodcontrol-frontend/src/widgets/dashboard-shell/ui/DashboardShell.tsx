@@ -32,7 +32,7 @@ export function DashboardShell({
   onSignOut,
 }: DashboardShellProps) {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-400/30">
+    <main className="min-h-screen bg-[var(--surface)] text-[var(--text)] selection:bg-[var(--signal)] selection:text-[var(--surface-deep)]">
       <DashboardNavigation
         user={user}
         activeNav={activeNav}
@@ -43,39 +43,38 @@ export function DashboardShell({
       />
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-18 items-center gap-4 border-b border-white/8 bg-slate-950/80 px-4 backdrop-blur-xl sm:px-7">
+        <header className="sticky top-0 z-30 flex h-18 items-center gap-4 border-b border-[var(--rule)] bg-[color-mix(in_srgb,var(--surface)_94%,transparent)] px-4 backdrop-blur-xl sm:px-7">
           <Button
             ariaLabel="Open navigation"
             onClick={onOpenMobileNav}
-            className="rounded-lg p-2 text-slate-300 hover:bg-white/5 lg:hidden"
+            className="p-2 text-[var(--text-muted)] hover:bg-[var(--surface-raised)] lg:hidden"
           >
             <Icon name="menu" />
           </Button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold sm:text-base">
+            <p className="truncate text-sm font-semibold uppercase tracking-[0.08em] sm:text-base">
               {activeNav}
             </p>
-            <p className="hidden text-xs text-slate-500 sm:block">
-              Real-time flood intelligence · San Isidro City
+            <p className="hidden text-[10px] uppercase tracking-[0.12em] text-[var(--text-dim)] sm:block">
+              Olongapo City · Demo operations
             </p>
           </div>
-          <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/8 px-3 py-1.5 text-xs font-medium text-emerald-300 sm:flex">
-            <span className="size-1.5 animate-pulse rounded-full bg-emerald-400" />{" "}
-            Live data
+          <div className="hidden items-center gap-2 border border-[var(--rule-strong)] bg-[var(--signal-soft)] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.1em] text-[var(--signal)] sm:flex">
+            <span className="size-1.5 animate-pulse bg-[var(--signal)]" /> Demo data · sync active
           </div>
           <Button
             ariaLabel="Search"
-            className="rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white"
+            className="p-2.5 text-[var(--text-muted)] hover:bg-[var(--surface-raised)] hover:text-white"
           >
             <Icon name="search" />
           </Button>
           <Button
             ariaLabel="Notifications"
             onClick={onToggleAlerts}
-            className="relative rounded-xl p-2.5 text-slate-400 hover:bg-white/5 hover:text-white"
+            className="relative p-2.5 text-[var(--text-muted)] hover:bg-[var(--surface-raised)] hover:text-white"
           >
             <Icon name="bell" />
-            <span className="absolute right-2 top-2 size-2 rounded-full border-2 border-slate-950 bg-rose-500" />
+            <span className="absolute right-2 top-2 size-2 border-2 border-[var(--surface)] bg-[var(--danger)]" />
           </Button>
         </header>
 
@@ -83,23 +82,21 @@ export function DashboardShell({
       </div>
 
       {alertsOpen && (
-        <div className="fixed bottom-5 right-5 z-50 hidden w-80 rounded-2xl border border-white/10 bg-slate-900 p-4 shadow-2xl shadow-black/50 sm:block">
+        <div className="fixed bottom-5 right-5 z-50 hidden w-80 border border-[var(--rule-strong)] bg-[var(--surface-raised)] p-4 shadow-2xl shadow-black/50 sm:block">
           <div className="flex items-start gap-3">
-            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-rose-500/15 text-rose-300">
+            <div className="grid size-9 shrink-0 place-items-center border border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] text-[var(--danger)]">
               <Icon name="alert" className="size-4" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">
-                Critical alert active
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-slate-400">
+              <p className="text-sm font-semibold text-white">Critical alert active</p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">
                 Rizal Avenue is rising rapidly at 12 cm per hour.
               </p>
             </div>
             <Button
               ariaLabel="Dismiss notification"
               onClick={onDismissAlert}
-              className="text-slate-500 hover:text-white"
+              className="text-[var(--text-dim)] hover:text-white"
             >
               <Icon name="close" className="size-4" />
             </Button>
