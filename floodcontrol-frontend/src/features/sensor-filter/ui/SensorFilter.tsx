@@ -14,10 +14,10 @@ export function SensorFilter({
         <Button
           key={item}
           onClick={() => onChange(item as SensorFilter)}
-          className={`shrink-0 rounded-lg border px-3 py-2 text-xs font-medium ${
+          className={`shrink-0 border px-3 py-2 text-xs font-medium ${
             value === item
-              ? "border-cyan-400 bg-cyan-400 text-slate-950"
-              : "border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20 hover:text-white"
+              ? "border-[var(--signal)] bg-[var(--signal)] text-[var(--surface-deep)]"
+              : "border-[var(--rule)] bg-[var(--surface-raised)] text-[var(--text-muted)] hover:border-[var(--rule-strong)] hover:text-white"
           }`}
         >
           {item}

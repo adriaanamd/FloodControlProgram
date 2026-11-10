@@ -17,6 +17,26 @@ import { Icon } from "../../../shared/ui/Icon"
 import { PageHeading } from "../../../shared/ui/PageHeading"
 import { Row } from "../../../shared/ui/Row"
 
+const filterItems = [
+  "All",
+  "Critical",
+  "Warning",
+  "Watch",
+  "District 1",
+  "District 2",
+  "District 3",
+  "District 4",
+  "District 5",
+]
+
+const controlClass =
+  "border border-[var(--rule)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)] hover:border-[var(--rule-strong)] hover:text-white"
+
+const activeControlClass =
+  "border border-[var(--signal)] bg-[var(--signal)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--surface-deep)]"
+
+const panelClass = "border border-[var(--rule)] bg-[var(--surface-raised)]"
+
 export function DashboardWorkspace({ tab }: { tab: string }) {
   const [view, setView] = useState("All")
   const [selected, setSelected] = useState(sensors[0])
@@ -56,50 +76,36 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           action="Export map"
         />
         <div className="mb-4 flex flex-wrap gap-2">
-          {[
-            "All",
-            "Critical",
-            "Warning",
-            "Watch",
-            "District 1",
-            "District 2",
-            "District 3",
-            "District 4",
-            "District 5",
-          ].map((item) => (
+          {filterItems.map((item) => (
             <Button
               key={item}
               onClick={() => setView(item)}
-              className={`rounded-lg border px-3 py-2 text-xs ${
-                view === item
-                  ? "border-cyan-400 bg-cyan-400 text-slate-950"
-                  : "border-white/10 text-slate-400 hover:bg-white/5"
-              }`}
+              className={view === item ? activeControlClass : controlClass}
             >
               {item}
             </Button>
           ))}
         </div>
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-          <article className="relative min-h-[42rem] overflow-hidden rounded-2xl border border-white/8 bg-[#0d1b26]">
-            <div className="map-grid absolute inset-0 opacity-60" />
+          <article className="relative min-h-[42rem] overflow-hidden border border-[var(--rule)] bg-[#10140f]">
+            <div className="map-grid absolute inset-0 opacity-70" />
             <svg
               className="absolute inset-0 size-full opacity-60"
               viewBox="0 0 900 700"
               preserveAspectRatio="none"
             >
-              <g fill="none" stroke="#37505f" strokeWidth="10">
+              <g fill="none" stroke="#414c3e" strokeWidth="10">
                 <path d="M-30 130C170 70 300 190 490 120s280 20 450 0" />
                 <path d="M120-20c20 210 100 330 20 750M650-20c-90 210-40 440 100 750" />
                 <path d="M-20 510c220-90 340 10 510-70s290 20 450-30" />
               </g>
-              <g fill="none" stroke="#1c3442" strokeWidth="4">
+              <g fill="none" stroke="#2a3328" strokeWidth="4">
                 <path d="M-20 300h950M350-20v750M820-20 700 730M20 30l850 610M250-20 540 730M-20 650 880 30" />
               </g>
               <path
                 d="M-10 390c170-120 290 100 450-10S700 270 940 100"
                 fill="none"
-                stroke="#0e7490"
+                stroke="#8b6700"
                 strokeWidth="24"
                 opacity=".6"
               />
@@ -118,85 +124,90 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   className={`absolute inset-0 animate-ping rounded-full opacity-20 ${severityStyles[sensor.state].split(" ")[0]}`}
                 />
                 <span
-                  className={`relative grid size-8 place-items-center rounded-full border-4 border-slate-900 shadow-xl ${severityStyles[sensor.state]}`}
+                  className={`relative grid size-8 place-items-center rounded-full border-4 border-[#10140f] ${severityStyles[sensor.state]}`}
                 >
                   <Icon name="droplet" className="size-3" />
                 </span>
               </Button>
             ))}
-            <div className="absolute bottom-4 left-4 rounded-xl border border-white/10 bg-slate-950/90 p-3 text-xs backdrop-blur">
-              <div className="mb-2 font-semibold text-white">Map legend</div>
+            <div className="absolute bottom-4 left-4 border border-[var(--rule-strong)] bg-[var(--surface-deep)]/95 p-3 text-xs">
+              <div className="mb-2 font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-white">
+                Map legend · demo telemetry
+              </div>
               <div className="flex flex-wrap gap-3">
-                {["Critical", "Warning", "Watch", "Normal"].map((s) => (
-                  <span
-                    key={s}
-                    className="flex items-center gap-1.5 text-slate-400"
-                  >
+                {(["Critical", "Warning", "Watch", "Normal"] as const).map(
+                  (status) => (
                     <span
-                      className={`size-2 rounded-full ${severityStyles[(s as keyof typeof severityStyles)].split(" ")[0]}`}
-                    />
-                    {s}
-                  </span>
-                ))}
+                      key={status}
+                      className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)]"
+                    >
+                      <span
+                        className={`size-2 rounded-full ${severityStyles[status].split(" ")[0]}`}
+                      />
+                      {status}
+                    </span>
+                  ),
+                )}
               </div>
             </div>
           </article>
           <div className="space-y-4">
-            <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
+            <article className={`${panelClass} p-5`}>
               <div className="flex items-center justify-between">
                 <span
-                  className={`rounded-full px-2.5 py-1 text-xs font-semibold ${severityStyles[selected.state]}`}
+                  className={`px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] ${severityStyles[selected.state]}`}
                 >
                   {selected.state}
                 </span>
-                <span className="text-xs text-slate-500">{selected.id}</span>
+                <span className="text-[10px] text-[var(--text-dim)]">
+                  {selected.id}
+                </span>
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-white">
+              <h2 className="mt-4 font-display text-lg font-semibold text-white">
                 {selected.street}
               </h2>
-              <p className="text-sm text-slate-500">{selected.zone}</p>
-              <p className="mt-6 text-4xl font-semibold text-white">
+              <p className="text-xs text-[var(--text-muted)]">{selected.zone}</p>
+              <p className="mt-6 font-display text-4xl font-semibold text-white">
                 {selected.level}
-                <span className="ml-1 text-sm font-normal text-slate-500">
+                <span className="ml-1 text-sm font-normal text-[var(--text-dim)]">
                   cm
                 </span>
               </p>
-              <div className="mt-5 space-y-3 border-t border-white/8 pt-4 text-sm">
+              <div className="mt-5 space-y-3 border-t border-[var(--rule)] pt-4 text-sm">
                 <Row label="Rate of change" value={selected.trend} />
                 <Row label="Signal quality" value="Excellent · 94%" />
                 <Row label="Last reading" value="12 sec ago" />
                 <Row label="Battery" value="87%" />
               </div>
-              <Button className="mt-5 w-full rounded-xl bg-cyan-400 py-2.5 text-sm font-semibold text-slate-950 hover:bg-cyan-300">
+              <Button className="mt-5 w-full border border-[var(--signal)] bg-[var(--signal)] py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--surface-deep)] hover:bg-[#ffd166]">
                 Open sensor history
               </Button>
             </article>
-            <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
-              <h2 className="font-semibold text-white">Map layers</h2>
-              {[
-                "Flood depth",
-                "Road closures",
-                "Evacuation centers",
-                "Drainage network",
-              ].map((layer, i) => (
-                <div
-                  key={layer}
-                  className="mt-3 flex items-center justify-between text-sm text-slate-400"
-                >
-                  <span>{layer}</span>
-                  <span
-                    className={`h-5 w-9 rounded-full p-0.5 ${
-                      i < 2 ? "bg-cyan-400" : "bg-slate-700"
-                    }`}
+            <article className={`${panelClass} p-5`}>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
+                Map layers
+              </h2>
+              {["Flood depth", "Road closures", "Evacuation centers", "Drainage network"].map(
+                (layer, i) => (
+                  <div
+                    key={layer}
+                    className="mt-3 flex items-center justify-between text-sm text-[var(--text-muted)]"
                   >
+                    <span>{layer}</span>
                     <span
-                      className={`block size-4 rounded-full bg-white transition ${
-                        i < 2 ? "translate-x-4" : ""
+                      className={`h-5 w-9 border border-[var(--rule)] p-0.5 ${
+                        i < 2 ? "bg-[var(--signal)]" : "bg-[var(--surface-deep)]"
                       }`}
-                    />
-                  </span>
-                </div>
-              ))}
+                    >
+                      <span
+                        className={`block size-4 bg-[var(--surface-deep)] transition ${
+                          i < 2 ? "translate-x-4" : ""
+                        }`}
+                      />
+                    </span>
+                  </div>
+                ),
+              )}
             </article>
           </div>
         </div>
@@ -211,53 +222,49 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           subtitle={title[tab][1]}
           action="Register sensor"
         />
-        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mb-5 grid grid-cols-2 divide-x divide-y divide-[var(--rule)] border border-[var(--rule)] bg-[var(--surface-raised)] lg:grid-cols-4 lg:divide-y-0">
           {[
-            ["48", "Online", "emerald"],
-            ["1", "Offline", "rose"],
-            ["1", "Low battery", "amber"],
-            ["99.2%", "Network uptime", "cyan"],
-          ].map(([v, l, c]) => (
-            <article
-              key={l}
-              className="rounded-2xl border border-white/8 bg-white/[0.035] p-4"
-            >
-              <p className={`text-2xl font-semibold text-${c}-300`}>{v}</p>
-              <p className="mt-1 text-xs text-slate-500">{l}</p>
+            ["48", "Online", "text-[var(--signal)]"],
+            ["1", "Offline", "text-[var(--danger)]"],
+            ["1", "Low battery", "text-[#ffd166]"],
+            ["99.2%", "Network uptime", "text-[var(--signal)]"],
+          ].map(([value, label, color]) => (
+            <article key={label} className="p-4">
+              <p className={`font-display text-2xl font-semibold ${color}`}>
+                {value}
+              </p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
+                {label}
+              </p>
             </article>
           ))}
         </div>
-        <article className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 p-4">
-            <div className="flex gap-2">
-              {[
-                "All",
-                "District 1",
-                "District 2",
-                "District 3",
-                "District 4",
-                "District 5",
-              ].map((item) => (
-                <Button
-                  key={item}
-                  onClick={() => setView(item)}
-                  className={`rounded-lg px-3 py-2 text-xs ${
-                    view === item
-                      ? "bg-cyan-400 text-slate-950"
-                      : "bg-slate-900 text-slate-400"
-                  }`}
-                >
-                  {item}
-                </Button>
-              ))}
+        <article className={`${panelClass} overflow-hidden`}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--rule)] p-4">
+            <div className="flex flex-wrap gap-2">
+              {["All", "District 1", "District 2", "District 3", "District 4", "District 5"].map(
+                (item) => (
+                  <Button
+                    key={item}
+                    onClick={() => setView(item)}
+                    className={
+                      view === item
+                        ? "bg-[var(--signal)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--surface-deep)]"
+                        : "bg-[var(--surface-deep)] px-3 py-2 text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)] hover:text-white"
+                    }
+                  >
+                    {item}
+                  </Button>
+                ),
+              )}
             </div>
-            <p className="text-xs text-slate-500">
-              {filtered.length} devices shown
+            <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
+              {filtered.length} devices · demo telemetry
             </p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-slate-950/50 text-xs text-slate-500">
+              <thead className="bg-[var(--surface-deep)] text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
                 <tr>
                   <th className="px-5 py-3 font-medium">Sensor</th>
                   <th className="px-5 py-3 font-medium">Location</th>
@@ -267,30 +274,28 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   <th className="px-5 py-3 font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/6">
-                {filtered.map((s, i) => (
-                  <tr key={s.id} className="hover:bg-white/[0.025]">
-                    <td className="px-5 py-4 font-medium text-white">{s.id}</td>
+              <tbody className="divide-y divide-[var(--rule)]">
+                {filtered.map((sensor, index) => (
+                  <tr key={sensor.id} className="hover:bg-[var(--surface-elevated)]">
+                    <td className="px-5 py-4 font-medium text-white">{sensor.id}</td>
                     <td className="px-5 py-4">
-                      <p className="text-slate-300">{s.street}</p>
-                      <p className="text-xs text-slate-600">{s.zone}</p>
+                      <p className="text-[var(--text-muted)]">{sensor.street}</p>
+                      <p className="text-[10px] text-[var(--text-dim)]">{sensor.zone}</p>
                     </td>
-                    <td className="px-5 py-4 text-slate-300">{s.level} cm</td>
-                    <td className="px-5 py-4 text-emerald-300">
-                      {92 - (i % 8)}%
-                    </td>
-                    <td className="px-5 py-4 text-slate-300">
-                      {i === 7 ? "16%" : `${96 - i * 3}%`}
+                    <td className="px-5 py-4 text-[var(--text-muted)]">{sensor.level} cm</td>
+                    <td className="px-5 py-4 text-[var(--signal)]">{92 - (index % 8)}%</td>
+                    <td className="px-5 py-4 text-[var(--text-muted)]">
+                      {index === 7 ? "16%" : `${96 - index * 3}%`}
                     </td>
                     <td className="px-5 py-4">
                       <span
-                        className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
-                          s.state === "Critical"
-                            ? "bg-rose-400/15 text-rose-300"
-                            : "bg-emerald-400/10 text-emerald-300"
+                        className={`border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] ${
+                          sensor.state === "Critical"
+                            ? "border-[var(--danger)] text-[var(--danger)]"
+                            : "border-[var(--rule-strong)] text-[var(--signal)]"
                         }`}
                       >
-                        {i === 9 ? "Needs service" : "Online"}
+                        {index === 9 ? "Needs service" : "Online"}
                       </span>
                     </td>
                   </tr>
@@ -342,14 +347,6 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           : period === "3 days"
             ? ["Now", "+18h", "+36h", "+54h", "+72h"]
             : ["Now", "+42h", "+84h", "+126h", "+168h"]
-    const riskClass =
-      predictiveForecast.risk === "Critical"
-        ? "bg-rose-500/15 text-rose-300"
-        : predictiveForecast.risk === "Warning"
-          ? "bg-amber-400/15 text-amber-300"
-          : predictiveForecast.risk === "Watch"
-            ? "bg-cyan-400/15 text-cyan-300"
-            : "bg-emerald-400/15 text-emerald-300"
     const historyCount =
       sensorHistories[selectedPredictionSensor.id]?.length ?? 0
 
@@ -366,22 +363,18 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
               <Button
                 key={item}
                 onClick={() => setPeriod(item)}
-                className={`rounded-lg border px-3 py-2 text-xs ${
-                  period === item
-                    ? "border-cyan-400 bg-cyan-400 text-slate-950"
-                    : "border-white/10 text-slate-400"
-                }`}
+                className={period === item ? activeControlClass : controlClass}
               >
                 {item}
               </Button>
             ))}
           </div>
-          <label className="flex items-center gap-2 text-xs text-slate-500">
+          <label className="flex items-center gap-2 text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)]">
             Forecast sensor
             <select
               value={predictionSensorId}
               onChange={(event) => setPredictionSensorId(event.target.value)}
-              className="rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-xs text-slate-300 outline-none focus:border-cyan-400"
+              className="border border-[var(--rule)] bg-[var(--surface-deep)] px-3 py-2 text-[10px] text-[var(--text-muted)] outline-none focus:border-[var(--signal)]"
             >
               {sensors.map((sensor) => (
                 <option key={sensor.id} value={sensor.id}>
@@ -392,67 +385,50 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           </label>
         </div>
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-          <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
+          <article className={`${panelClass} p-5`}>
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="font-semibold text-white">
+                <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
                   Water-level forecast
                 </h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  {selectedPredictionSensor.id} ·{" "}
-                  {selectedPredictionSensor.street} · {period}
+                <p className="mt-1 text-[10px] text-[var(--text-dim)]">
+                  {selectedPredictionSensor.id} · {selectedPredictionSensor.street} · {period} · demo model
                 </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs ${riskClass}`}>
+              <span
+                className={`px-3 py-1 text-[10px] uppercase tracking-[0.08em] ${severityStyles[predictiveForecast.risk]}`}
+              >
                 {predictiveForecast.risk} risk
               </span>
             </div>
-            <div className="relative mt-8 h-72 border-b border-l border-white/10">
+            <div className="relative mt-8 h-72 border-b border-l border-[var(--rule)]">
               <svg
                 className="size-full"
                 viewBox="0 0 800 280"
                 preserveAspectRatio="none"
               >
                 <defs>
-                  <linearGradient
-                    id="prediction-area"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0" stopColor="#22d3ee" stopOpacity=".35" />
-                    <stop offset="1" stopColor="#22d3ee" stopOpacity="0" />
+                  <linearGradient id="prediction-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor="#ffb800" stopOpacity=".35" />
+                    <stop offset="1" stopColor="#ffb800" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <polygon
-                  points={uncertaintyPoints}
-                  fill="#22d3ee"
-                  fillOpacity=".08"
-                />
-                <polygon
-                  points={forecastAreaPoints}
-                  fill="url(#prediction-area)"
-                />
+                <polygon points={uncertaintyPoints} fill="#ffb800" fillOpacity=".08" />
+                <polygon points={forecastAreaPoints} fill="url(#prediction-area)" />
                 <line
                   x1="0"
                   x2="800"
                   y1={260 - (60 / chartMax) * 230}
                   y2={260 - (60 / chartMax) * 230}
-                  stroke="#fb7185"
+                  stroke="#ff4d3d"
                   strokeDasharray="6 6"
-                  strokeOpacity=".5"
+                  strokeOpacity=".65"
                 />
-                <polyline
-                  points={chartPoints}
-                  fill="none"
-                  stroke="#22d3ee"
-                  strokeWidth="4"
-                />
+                <polyline points={chartPoints} fill="none" stroke="#ffb800" strokeWidth="4" />
                 <text
                   x="795"
                   y={Math.max(14, 255 - (60 / chartMax) * 230)}
-                  fill="#fda4af"
+                  fill="#ff8b7f"
                   fontSize="10"
                   textAnchor="end"
                 >
@@ -460,69 +436,64 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                 </text>
               </svg>
             </div>
-            <div className="mt-3 flex justify-between text-[10px] text-slate-600">
+            <div className="mt-3 flex justify-between text-[10px] text-[var(--text-dim)]">
               {timelineLabels.map((label) => (
                 <span key={label}>{label}</span>
               ))}
             </div>
           </article>
           <div className="space-y-4">
-            <article className="rounded-2xl border border-white/8 bg-gradient-to-br from-amber-400/10 to-rose-500/5 p-5">
-              <p className="text-xs text-slate-400">Peak projected level</p>
-              <p className="mt-2 text-3xl font-semibold text-white">
+            <article className="fieldboard-surface border border-[var(--rule-strong)] bg-[var(--signal-soft)] p-5">
+              <p className="text-[10px] uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                Peak projected level
+              </p>
+              <p className="mt-2 font-display text-3xl font-semibold text-white">
                 {Math.round(predictiveForecast.peakLevel)} cm
               </p>
-              <p className="mt-1 text-xs text-amber-300">
+              <p className="mt-1 text-[10px] text-[var(--signal)]">
                 Expected in +{predictiveForecast.peakHour} hours
               </p>
-              <div className="mt-5 border-t border-white/8 pt-4">
-                <Row
-                  label="Model confidence"
-                  value={`${predictiveForecast.confidence}%`}
-                />
-                <Row
-                  label="Potential road impact"
-                  value={`${predictiveForecast.roadImpact} streets`}
-                />
-                <Row
-                  label="Population exposed"
-                  value={predictiveForecast.populationExposed.toLocaleString("en-US")}
-                />
+              <div className="mt-5 border-t border-[var(--rule)] pt-4">
+                <Row label="Model confidence" value={`${predictiveForecast.confidence}%`} />
+                <Row label="Potential road impact" value={`${predictiveForecast.roadImpact} streets`} />
+                <Row label="Population exposed" value={predictiveForecast.populationExposed.toLocaleString("en-US")} />
               </div>
             </article>
-            <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
-              <h2 className="font-semibold text-white">Forecast inputs</h2>
+            <article className={`${panelClass} p-5`}>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
+                Forecast inputs
+              </h2>
               {[
                 ["Water-level history", `${historyCount} hourly samples`],
                 ["Holt trend model", `Alpha ${holtParameters.alpha}`],
                 ["Trend smoothing", `Beta ${holtParameters.beta}`],
                 ["Critical threshold", "60 cm"],
-              ].map(([a, b]) => (
-                <div key={a} className="mt-3 flex justify-between text-xs">
-                  <span className="text-slate-400">{a}</span>
-                  <span className="text-emerald-300">{b}</span>
+              ].map(([label, value]) => (
+                <div key={label} className="mt-3 flex justify-between text-xs">
+                  <span className="text-[var(--text-muted)]">{label}</span>
+                  <span className="text-[var(--signal)]">{value}</span>
                 </div>
               ))}
             </article>
           </div>
         </div>
-        <article className="mt-5 overflow-hidden rounded-2xl border border-white/8 bg-white/[0.035]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 p-5">
+        <article className={`${panelClass} mt-5 overflow-hidden`}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--rule)] p-5">
             <div>
-              <h2 className="font-semibold text-white">
+              <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
                 Sensor forecast comparison
               </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Holt trend forecast for every mocked sensor
+              <p className="mt-1 text-[10px] text-[var(--text-dim)]">
+                Holt trend forecast for every demo sensor
               </p>
             </div>
-            <span className="rounded-full bg-cyan-400/10 px-2.5 py-1 text-xs font-medium text-cyan-300">
+            <span className="border border-[var(--rule-strong)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--signal)]">
               {comparisonRows.length} sensors modeled
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-slate-950/50 text-xs text-slate-500">
+              <thead className="bg-[var(--surface-deep)] text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
                 <tr>
                   <th className="px-5 py-3 font-medium">Sensor</th>
                   <th className="px-5 py-3 font-medium">Current level</th>
@@ -532,47 +503,31 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                   <th className="px-5 py-3 font-medium">Risk</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/6">
+              <tbody className="divide-y divide-[var(--rule)]">
                 {comparisonRows.map((row) => {
-                  const sensor =
-                    sensors.find((item) => item.id === row.sensorId) ??
-                    sensors[0]
+                  const sensor = sensors.find((item) => item.id === row.sensorId) ?? sensors[0]
                   const isSelected = sensor.id === selectedPredictionSensor.id
 
                   return (
                     <tr
                       key={row.sensorId}
-                      className={`hover:bg-white/[0.025] ${
-                        isSelected ? "bg-cyan-400/[0.04]" : ""
-                      }`}
+                      className={isSelected ? "bg-[var(--signal-soft)]" : "hover:bg-[var(--surface-elevated)]"}
                     >
                       <td className="px-5 py-3">
                         <Button
                           onClick={() => setPredictionSensorId(row.sensorId)}
-                          className="text-left font-medium text-cyan-300 hover:text-cyan-200"
+                          className="text-left font-medium text-[var(--signal)] hover:text-[#ffd166]"
                         >
                           {row.sensorId}
                         </Button>
-                        <p className="mt-0.5 text-xs text-slate-600">
-                          {sensor.street}
-                        </p>
+                        <p className="mt-0.5 text-[10px] text-[var(--text-dim)]">{sensor.street}</p>
                       </td>
-                      <td className="px-5 py-3 text-slate-300">
-                        {row.currentLevel} cm
-                      </td>
-                      <td className="px-5 py-3 font-medium text-white">
-                        {Math.round(row.peakLevel)} cm
-                      </td>
-                      <td className="px-5 py-3 text-slate-400">
-                        +{row.peakHour}h
-                      </td>
-                      <td className="px-5 py-3 text-slate-300">
-                        {row.confidence}%
-                      </td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">{row.currentLevel} cm</td>
+                      <td className="px-5 py-3 font-medium text-white">{Math.round(row.peakLevel)} cm</td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">+{row.peakHour}h</td>
+                      <td className="px-5 py-3 text-[var(--text-muted)]">{row.confidence}%</td>
                       <td className="px-5 py-3">
-                        <span
-                          className={`rounded-full px-2 py-1 text-[10px] font-semibold ${severityStyles[row.risk]}`}
-                        >
+                        <span className={`px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] ${severityStyles[row.risk]}`}>
                           {row.risk}
                         </span>
                       </td>
@@ -594,31 +549,30 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
         subtitle={title[tab][1]}
         action="Create alert"
       />
-      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="mb-5 grid grid-cols-2 divide-x divide-y divide-[var(--rule)] border border-[var(--rule)] bg-[var(--surface-raised)] lg:grid-cols-4 lg:divide-y-0">
         {[
           ["3", "Active"],
           ["1", "Critical"],
           ["2", "Teams dispatched"],
           ["6m", "Avg. response"],
-        ].map(([v, l]) => (
-          <article
-            key={l}
-            className="rounded-2xl border border-white/8 bg-white/[0.035] p-4"
-          >
-            <p className="text-2xl font-semibold text-white">{v}</p>
-            <p className="mt-1 text-xs text-slate-500">{l}</p>
+        ].map(([value, label]) => (
+          <article key={label} className="p-4">
+            <p className="font-display text-2xl font-semibold text-[var(--signal)]">{value}</p>
+            <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">{label}</p>
           </article>
         ))}
       </div>
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <article className="rounded-2xl border border-white/8 bg-white/[0.035]">
-          <div className="border-b border-white/8 p-5">
-            <h2 className="font-semibold text-white">Incident queue</h2>
-            <p className="mt-1 text-xs text-slate-500">
-              Sorted by operational priority
+        <article className={panelClass}>
+          <div className="border-b border-[var(--rule)] p-5">
+            <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
+              Incident queue
+            </h2>
+            <p className="mt-1 text-[10px] text-[var(--text-dim)]">
+              Sorted by operational priority · demo queue
             </p>
           </div>
-          <div className="divide-y divide-white/8">
+          <div className="divide-y divide-[var(--rule)]">
             {alerts
               .concat({
                 severity: "Watch",
@@ -626,48 +580,48 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
                 place: "Malaya Creek · District 5",
                 time: "28 min ago",
               })
-              .map((a, i) => (
-                <div key={a.title} className="p-5">
+              .map((alert, index) => (
+                <div key={alert.title} className="p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                     <div
-                      className={`grid size-10 shrink-0 place-items-center rounded-xl ${
-                        a.severity === "Critical"
-                          ? "bg-rose-500/15 text-rose-300"
-                          : "bg-amber-400/10 text-amber-300"
+                      className={`grid size-10 shrink-0 place-items-center border ${
+                        alert.severity === "Critical"
+                          ? "border-[var(--danger)] bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] text-[var(--danger)]"
+                          : "border-[var(--rule-strong)] bg-[var(--signal-soft)] text-[var(--signal)]"
                       }`}
                     >
                       <Icon name="alert" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-white">{a.title}</p>
-                        <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-slate-400">
-                          {a.severity}
+                        <p className="font-medium text-white">{alert.title}</p>
+                        <span className="border border-[var(--rule)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+                          {alert.severity}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {a.place} · {a.time}
+                      <p className="mt-1 text-xs text-[var(--text-muted)]">
+                        {alert.place} · {alert.time}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-500">
-                        {alertState[i] || (i < 2 ? "Unassigned" : "Monitoring")}
+                      <span className="text-[10px] uppercase tracking-[0.08em] text-[var(--text-dim)]">
+                        {alertState[index] || (index < 2 ? "Unassigned" : "Monitoring")}
                       </span>
                       <Button
                         onClick={() =>
                           setAlertState({
                             ...alertState,
-                            [i]:
-                              alertState[i] === "Dispatched"
+                            [index]:
+                              alertState[index] === "Dispatched"
                                 ? "Resolved"
                                 : "Dispatched",
                           })
                         }
-                        className="rounded-lg bg-cyan-400 px-3 py-2 text-xs font-semibold text-slate-950"
+                        className="border border-[var(--signal)] bg-[var(--signal)] px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--surface-deep)]"
                       >
-                        {alertState[i] === "Dispatched"
+                        {alertState[index] === "Dispatched"
                           ? "Resolve"
-                          : alertState[i] === "Resolved"
+                          : alertState[index] === "Resolved"
                             ? "Resolved"
                             : "Dispatch"}
                       </Button>
@@ -678,34 +632,35 @@ export function DashboardWorkspace({ tab }: { tab: string }) {
           </div>
         </article>
         <div className="space-y-4">
-          <article className="rounded-2xl border border-white/8 bg-white/[0.035] p-5">
-            <h2 className="font-semibold text-white">Response teams</h2>
+          <article className={`${panelClass} p-5`}>
+            <h2 className="font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
+              Response teams
+            </h2>
             {[
               ["Alpha 1", "En route · 4 min"],
               ["Bravo 2", "Available"],
               ["Rescue 4", "On scene"],
               ["Traffic 3", "Available"],
             ].map(([team, status]) => (
-              <div
-                key={team}
-                className="mt-4 flex items-center justify-between"
-              >
+              <div key={team} className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-emerald-400" />
-                  <span className="text-sm text-slate-300">{team}</span>
+                  <span className="size-2 bg-[var(--signal)]" />
+                  <span className="text-sm text-[var(--text-muted)]">{team}</span>
                 </div>
-                <span className="text-[10px] text-slate-500">{status}</span>
+                <span className="text-[10px] text-[var(--text-dim)]">{status}</span>
               </div>
             ))}
           </article>
-          <article className="rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-5">
-            <Icon name="radio" className="text-cyan-300" />
-            <h2 className="mt-3 font-semibold text-white">Public advisory</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+          <article className="fieldboard-surface border border-[var(--rule-strong)] bg-[var(--signal-soft)] p-5">
+            <Icon name="radio" className="text-[var(--signal)]" />
+            <h2 className="mt-3 font-display text-sm font-semibold uppercase tracking-[0.08em] text-white">
+              Public advisory
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--text-muted)]">
               Rizal Avenue is closed between Mabini and Luna Streets. Use
               Bonifacio Avenue as alternate route.
             </p>
-            <Button className="mt-4 w-full rounded-lg border border-cyan-400/20 py-2 text-xs font-semibold text-cyan-300">
+            <Button className="mt-4 w-full border border-[var(--rule-strong)] py-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--signal)] hover:bg-[var(--surface-elevated)]">
               Update advisory
             </Button>
           </article>

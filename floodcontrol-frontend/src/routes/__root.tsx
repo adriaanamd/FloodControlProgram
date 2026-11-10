@@ -15,10 +15,10 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "iFlood 2.0 | City Operations" },
+      { title: "Olongapo City Flood Control | Demo Operations" },
       {
         name: "description",
-        content: "Mock flood operations dashboard for San Isidro City.",
+        content: "Olongapo City flood monitoring and response dashboard demo.",
       },
     ],
     scripts: [],

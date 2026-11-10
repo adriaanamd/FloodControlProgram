@@ -13,7 +13,7 @@ export function TextField({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-xs font-medium text-slate-400">
+      <span className="mb-2 block text-xs font-medium uppercase tracking-[0.08em] text-[var(--text-muted)]">
         {label}
       </span>
       <input
