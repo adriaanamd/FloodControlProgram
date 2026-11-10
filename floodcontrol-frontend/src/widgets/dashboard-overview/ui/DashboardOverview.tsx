@@ -1,6 +1,15 @@
 import { alerts } from "../../../entities/alert/model/mock"
 import { getActiveAlerts } from "../../../entities/alert/model/selectors"
 import { floodLocations } from "../../../entities/flood/model/mock"
+import {
+  getAlertCounts,
+  getAttentionSensors,
+  getCitywideHistory,
+  getOverviewForecast,
+  getSensorStateCounts,
+} from "../../../entities/overview/model/selectors"
+import { sensorHistories } from "../../../entities/prediction/model/mock"
+import { getSensorForecast } from "../../../entities/prediction/model/selectors"
 import { sensors } from "../../../entities/sensor/model/mock"
 import {
   filterSensors,
@@ -14,6 +23,7 @@ import { Button } from "../../../shared/ui/Button"
 import { Icon, type IconName } from "../../../shared/ui/Icon"
 import { SectionFolio } from "../../../shared/ui/SectionFolio"
 import { FloodLeafletMap } from "../../flood-map/ui/FloodLeafletMap"
+import { OverviewAnalytics } from "../../overview-analytics/ui/OverviewAnalytics"
 
 type DashboardOverviewProps = {
   filter: SensorFilter
@@ -34,6 +44,12 @@ export function DashboardOverview({
 }: DashboardOverviewProps) {
   const visibleSensors = filterSensors(sensors, filter)
   const activeAlertCount = getActiveAlerts(alerts, acknowledged).length
+  const selectedForecast = getSensorForecast(selectedSensor.id, "6 hours")
+  const overviewForecast = getOverviewForecast(
+    selectedSensor.level,
+    selectedForecast,
+    2,
+  )
 
   return (
     <>
@@ -81,6 +97,16 @@ export function DashboardOverview({
         ))}
       </section>
 
+      <OverviewAnalytics
+        history={getCitywideHistory(visibleSensors, sensorHistories)}
+        alertCounts={getAlertCounts(alerts, acknowledged)}
+        sensorCounts={getSensorStateCounts(visibleSensors)}
+        forecast={overviewForecast}
+        forecastConfidence={selectedForecast.confidence}
+        forecastSensorLabel={selectedSensor.street}
+        attentionSensors={getAttentionSensors(visibleSensors, 4)}
+      />
+
       <section className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <article className="fieldboard-surface overflow-hidden border border-[var(--rule)] bg-[var(--surface-raised)]">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--rule)] px-5 py-4">
@@ -96,7 +122,7 @@ export function DashboardOverview({
               <Icon name="layers" className="size-4" /> Map layers
             </Button>
           </div>
-          <div className="relative h-[29rem] overflow-hidden bg-[#10140f]">
+          <div className="relative h-[22rem] overflow-hidden bg-[#10140f]">
             <FloodLeafletMap
               floodLocations={floodLocations}
               visibleSensors={visibleSensors}
@@ -194,45 +220,6 @@ export function DashboardOverview({
             <Button className="w-full border-t border-[var(--rule)] py-3.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--signal)] hover:bg-[var(--surface-elevated)]">
               View all alerts
             </Button>
-          </article>
-
-          <article className="fieldboard-surface border border-[var(--rule-strong)] bg-[var(--signal-soft)] p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
-                  2-hour prediction · demo model
-                </p>
-                <h2 className="mt-2 font-display font-semibold text-white">
-                  Flood risk rising
-                </h2>
-              </div>
-              <div className="grid size-10 place-items-center border border-[var(--rule-strong)] text-[var(--signal)]">
-                <Icon name="trend" />
-              </div>
-            </div>
-            <div className="mt-5 flex h-20 items-end gap-1.5">
-              {[24, 31, 28, 39, 45, 56, 61, 76, 84, 92].map((height, index) => (
-                <div
-                  key={index}
-                  className={`flex-1 rounded-t-sm ${
-                    index > 6 ? "bg-[var(--signal)]" : "bg-[var(--signal)]/35"
-                  }`}
-                  style={{ height: `${height}%` }}
-                />
-              ))}
-            </div>
-            <div className="mt-2 flex justify-between text-[10px] text-[var(--text-dim)]">
-              <span>Now</span>
-              <span>+1 hr</span>
-              <span>+2 hrs</span>
-            </div>
-            <div className="mt-4 flex items-center gap-2 border border-[var(--rule)] bg-[var(--surface-deep)]/40 px-3 py-2 text-xs text-[var(--text-muted)]">
-              <Icon name="activity" className="size-4 text-[var(--signal)]" />
-              <span>
-                <strong className="text-white">87% confidence</strong> based on
-                rainfall &amp; terrain
-              </span>
-            </div>
           </article>
         </div>
       </section>
