@@ -1,21 +1,79 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
+:root {
+  --surface: #0b0c0a;
+  --surface-deep: #050605;
+  --surface-raised: #141714;
+  --surface-elevated: #1b1e1a;
+  --signal: #ffb800;
+  --signal-soft: rgba(255, 184, 0, 0.12);
+  --text: #f4f5ef;
+  --text-muted: #9ca398;
+  --text-dim: #687064;
+  --rule: rgba(244, 245, 239, 0.12);
+  --rule-strong: rgba(255, 184, 0, 0.42);
+  --danger: #ff4d3d;
+}
+
 @theme {
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--surface-deep);
+  }
+
   body {
     min-width: 320px;
     min-height: 100vh;
-    background: #020617;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+    color-scheme: dark;
   }
 }
 
 .map-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+    linear-gradient(rgba(244, 245, 239, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 245, 239, 0.04) 1px, transparent 1px);
   background-size: 32px 32px;
+}
+
+.fieldboard-surface {
+  background-image: linear-gradient(
+    135deg,
+    rgba(244, 245, 239, 0.02),
+    transparent 42%
+  );
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
