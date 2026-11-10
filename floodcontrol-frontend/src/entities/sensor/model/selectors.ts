@@ -10,3 +10,11 @@ export function filterSensors(
     ? [...sensors]
     : sensors.filter((sensor) => sensor.state === filter)
 }
+
+export function getSensorCoordinates(
+  sensor: Pick<Sensor, "latitude" | "longitude">,
+): [number, number] | null {
+  return Number.isFinite(sensor.latitude) && Number.isFinite(sensor.longitude)
+    ? [sensor.latitude, sensor.longitude]
+    : null
+}

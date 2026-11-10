@@ -7,6 +7,8 @@ export type Sensor = {
   level: number
   state: SensorState
   trend: string
-  x: number
-  y: number
+  latitude: number
+  longitude: number
+  coordinateAccuracy: "approximate"
+  coordinateSource: string
 }

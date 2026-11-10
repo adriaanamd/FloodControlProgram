@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react"
 import type { LayerGroup, Map as LeafletMap } from "leaflet"
 import type { FloodLocation } from "../../../entities/flood/model/types"
+import { getSensorCoordinates } from "../../../entities/sensor/model/selectors"
 import type { Sensor } from "../../../entities/sensor/model/types"
 
 type LeafletModule = typeof import("leaflet")
@@ -28,10 +29,6 @@ const floodColors = {
   "observed-hotspot": "#ff4d3d",
   "drainage-risk": "#ffb800",
 } as const
-
-function sensorCoordinates(sensor: Sensor): [number, number] {
-  return [14.88 - sensor.y * 0.0007, 120.25 + sensor.x * 0.0008]
-}
 
 function escapeHtml(value: string): string {
   return value.replace(
@@ -109,10 +106,13 @@ export function FloodLeafletMap({
 
     sensorLayer.clearLayers()
     for (const sensor of sensors) {
+      const coordinates = getSensorCoordinates(sensor)
+      if (!coordinates) continue
+
       const isSelected = sensor.id === selected.id
       const color = sensorColors[sensor.state]
       leaflet
-        .circleMarker(sensorCoordinates(sensor), {
+        .circleMarker(coordinates, {
           color: isSelected ? "#f4f5ef" : "#10140f",
           fillColor: color,
           fillOpacity: 1,
