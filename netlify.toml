@@ -1,0 +1,7 @@
+[build]
+  base = "floodcontrol-frontend"
+  command = "npm ci && npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "22.23.4"
